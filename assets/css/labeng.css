@@ -3161,7 +3161,8 @@ body.admin-bar .lab-global-header {
         margin-top: 0 !important;
     }
     .lab-dashboard-wrapper { padding: 0 0 4rem !important; }
-    .lab-dashboard { display: block !important; margin-top: 0; }
+    .lab-dashboard { display: block !important; margin-top: 0; min-height: 0 !important; }
+    .lab-main { min-height: 0 !important; }
     .lab-dash-topbar { display: flex; }
 
     /* Hide global header inside the dashboard on mobile */
