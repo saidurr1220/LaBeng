@@ -152,12 +152,20 @@ if ( empty( $postcode_query ) ) :
                     $thumb = Lab_Business_CPT::get_business_image( $biz->ID, 'large' );
                     $biz_city     = get_post_meta( $biz->ID, '_lab_city', true );
                     $biz_postcode = get_post_meta( $biz->ID, '_lab_postcode', true );
+                    $biz_rating_avg   = floatval( get_post_meta( $biz->ID, '_lab_rating_avg', true ) );
+                    $biz_rating_total = intval( get_post_meta( $biz->ID, '_lab_total_reviews', true ) );
                 ?>
                     <a href="<?php echo esc_url( get_permalink( $biz->ID ) ); ?>" class="lab-bcard">
                         <div class="lab-bcard__image">
                             <img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( $biz->post_title ); ?>" loading="lazy" />
                         </div>
                         <div class="lab-bcard__title" style="padding-bottom:0; margin-bottom:0.25rem;"><?php echo esc_html( $biz->post_title ); ?></div>
+                        <?php if ( $biz_rating_total > 0 ) : ?>
+                            <div class="lab-bcard__rating">
+                                <?php echo Lab_Reviews::render_stars( $biz_rating_avg, true ); ?>
+                                <span>(<?php echo esc_html( $biz_rating_total ); ?>)</span>
+                            </div>
+                        <?php endif; ?>
                         <div style="font-size: 0.85rem; color: #888; padding: 0 1rem 1rem 1rem; display: flex; align-items: center; gap: 4px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; color: #3b82f6;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             <span><?php echo esc_html( $biz_city . ( $biz_postcode ? ', ' . $biz_postcode : '' ) ); ?></span>
