@@ -8,7 +8,7 @@ if ( is_user_logged_in() ) {
 
 $is_business = is_page( 'business-register' );
 
-include LABENG_PATH . 'templates/global/header.php';
+labeng_get_header();
 ?>
 
 <div class="lab-auth-page">
@@ -117,4 +117,4 @@ include LABENG_PATH . 'templates/global/header.php';
 </div>
 
 <?php
-include LABENG_PATH . 'templates/global/footer.php';
+labeng_get_footer();

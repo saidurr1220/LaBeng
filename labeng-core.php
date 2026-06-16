@@ -174,57 +174,93 @@ function labeng_enqueue_assets() {
 /* ── Template Loader ───────────────────────────────────────── */
 add_filter( 'template_include', 'labeng_template_include', 99 );
 
+/**
+ * Locate plugin templates, allowing child/parent theme overrides.
+ * Checks active_theme/labeng/{$template_name} first before falling back to plugin templates.
+ */
+function lab_locate_template( $template_name ) {
+    $theme_template = locate_template( array( 'labeng/' . $template_name ) );
+    if ( $theme_template ) {
+        return $theme_template;
+    }
+    $plugin_template = LABENG_PATH . 'templates/' . $template_name;
+    if ( file_exists( $plugin_template ) ) {
+        return $plugin_template;
+    }
+    return '';
+}
+
+/**
+ * Load the global header template, checking active theme overrides first.
+ */
+function labeng_get_header() {
+    $header = lab_locate_template( 'global/header.php' );
+    if ( $header ) {
+        include $header;
+    }
+}
+
+/**
+ * Load the global footer template, checking active theme overrides first.
+ */
+function labeng_get_footer() {
+    $footer = lab_locate_template( 'global/footer.php' );
+    if ( $footer ) {
+        include $footer;
+    }
+}
+
 function labeng_template_include( $template ) {
     /* 1. Home Page */
     if ( is_front_page() || is_page( 'labeng-home' ) ) {
-        $custom = LABENG_PATH . 'templates/public/home.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/home.php' );
+        if ( $custom ) return $custom;
     }
     
     /* 2. Login Page */
     if ( is_page( 'login' ) ) {
-        $custom = LABENG_PATH . 'templates/public/login.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/login.php' );
+        if ( $custom ) return $custom;
     }
     
     /* 3. Register Page */
     if ( is_page( 'register' ) || is_page( 'business-register' ) ) {
-        $custom = LABENG_PATH . 'templates/public/register.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/register.php' );
+        if ( $custom ) return $custom;
     }
     
     /* 4. Partner Page */
     if ( is_page( 'partner' ) || is_page( 'partner-with-us' ) ) {
-        $custom = LABENG_PATH . 'templates/public/partner.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/partner.php' );
+        if ( $custom ) return $custom;
     }
     
     /* 5. Business Dashboard */
     if ( is_page( 'business-dashboard' ) ) {
-        $custom = LABENG_PATH . 'templates/business/dashboard-page.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'business/dashboard-page.php' );
+        if ( $custom ) return $custom;
     }
     
     /* 6. Customer Dashboard */
     if ( is_page( 'customer-dashboard' ) ) {
-        $custom = LABENG_PATH . 'templates/customer/dashboard-page.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'customer/dashboard-page.php' );
+        if ( $custom ) return $custom;
     }
 
     /* 7. Single Business */
     if ( is_singular( 'lab_business' ) ) {
-        $custom = LABENG_PATH . 'templates/public/business-single.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/business-single.php' );
+        if ( $custom ) return $custom;
     }
 
     /* 8. Archives */
     if ( is_post_type_archive( 'lab_business' ) ) {
-        $custom = LABENG_PATH . 'templates/public/business-archive.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/business-archive.php' );
+        if ( $custom ) return $custom;
     }
     if ( is_post_type_archive( 'lab_deal' ) ) {
-        $custom = LABENG_PATH . 'templates/public/deal-archive.php';
-        if ( file_exists( $custom ) ) return $custom;
+        $custom = lab_locate_template( 'public/deal-archive.php' );
+        if ( $custom ) return $custom;
     }
 
     return $template;

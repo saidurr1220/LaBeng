@@ -36,6 +36,23 @@ $current_url = home_url( $_SERVER['REQUEST_URI'] );
     </style>
 </head>
 <body <?php body_class( 'labeng-dark-mode' ); ?>>
+    <div class="lab-transition-overlay"></div>
+    <noscript>
+        <style>
+            .lab-transition-overlay { display: none !important; }
+        </style>
+    </noscript>
+    <script>
+    setTimeout(function() {
+        var overlay = document.querySelector('.lab-transition-overlay');
+        if (overlay) {
+            overlay.classList.add('is-loaded');
+            setTimeout(function() {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+    }, 1500);
+    </script>
 <?php
 $header_class = 'lab-global-header';
 if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {

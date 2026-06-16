@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include LABENG_PATH . 'templates/global/header.php';
+labeng_get_header();
 
 $business_id = get_the_ID();
 $city = get_post_meta( $business_id, '_lab_city', true );
@@ -81,4 +81,4 @@ $thumb = Lab_Business_CPT::get_business_image( $business_id, 'large' );
 </script>
 
 <?php
-include LABENG_PATH . 'templates/global/footer.php';
+labeng_get_footer();

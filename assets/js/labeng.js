@@ -1555,4 +1555,83 @@
         }
     });
 
+    /* ── Page Transitions (Normal Fade Transition) ──────────────── */
+    $(function() {
+        var $overlay = $('.lab-transition-overlay');
+        if ($overlay.length > 0) {
+            $overlay.addClass('is-loaded');
+            setTimeout(function() {
+                $overlay.css('display', 'none');
+            }, 300);
+        }
+    });
+
+    window.addEventListener('pageshow', function(event) {
+        var $overlay = $('.lab-transition-overlay');
+        if ($overlay.length > 0) {
+            $overlay.css('display', 'block');
+            $overlay.removeClass('is-loaded');
+            // Force reflow
+            $overlay[0].offsetHeight;
+            $overlay.addClass('is-loaded');
+            setTimeout(function() {
+                $overlay.css('display', 'none');
+            }, 300);
+        }
+    });
+
+    // Intercept internal links for exit animation
+    $(document).on('click', 'a', function(e) {
+        var href = $(this).attr('href');
+
+        // Skip anchors, javascript, mailto, tel, target=_blank, or custom elements
+        if (!href || 
+            href.startsWith('#') || 
+            href.startsWith('javascript:') || 
+            href.startsWith('mailto:') || 
+            href.startsWith('tel:') || 
+            $(this).attr('target') === '_blank' ||
+            $(this).hasClass('no-transition') ||
+            $(this).closest('.no-transition').length > 0) {
+            return;
+        }
+
+        // Skip cmd/ctrl/shift clicks (open in new tab/window)
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.which === 2) {
+            return;
+        }
+
+        var isInternal = false;
+        var homeUrl = labVars.home_url || window.location.origin;
+
+        // Check if URL is local/internal
+        if (href.indexOf('/') === 0 || 
+            href.indexOf(window.location.hostname) !== -1 || 
+            href.indexOf(homeUrl) !== -1) {
+            isInternal = true;
+        }
+
+        if (isInternal) {
+            var $overlay = $('.lab-transition-overlay');
+            if ($overlay.length > 0) {
+                e.preventDefault();
+                
+                // If on homepage and header is not scrolled, trigger transition behavior
+                var $header = $('.lab-global-header');
+                if ($header.hasClass('lab-global-header--home') && !$header.hasClass('lab-global-header--scrolled')) {
+                    $header.addClass('lab-global-header--scrolled');
+                }
+
+                $overlay.css('display', 'block');
+                // Force reflow
+                $overlay[0].offsetHeight;
+                $overlay.removeClass('is-loaded');
+
+                setTimeout(function() {
+                    window.location.href = href;
+                }, 300);
+            }
+        }
+    });
+
 })(jQuery);

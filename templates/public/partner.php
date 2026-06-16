@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $partner_categories = get_terms( array( 'taxonomy' => 'lab_category', 'hide_empty' => false ) );
 
-include LABENG_PATH . 'templates/global/header.php';
+labeng_get_header();
 ?>
 
 <div class="lab-partner-page">
@@ -83,4 +83,4 @@ include LABENG_PATH . 'templates/global/header.php';
 </div>
 
 <?php
-include LABENG_PATH . 'templates/global/footer.php';
+labeng_get_footer();

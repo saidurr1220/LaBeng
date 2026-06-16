@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include LABENG_PATH . 'templates/global/header.php';
+labeng_get_header();
 
 /* Get categories for the Popular Categories grid */
 $categories = get_terms( array(
@@ -172,4 +172,4 @@ if ( empty( $postcode_query ) ) :
 <?php endif; ?>
 
 <?php
-include LABENG_PATH . 'templates/global/footer.php'; ?>
+labeng_get_footer(); ?>
