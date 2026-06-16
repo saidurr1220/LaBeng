@@ -1070,11 +1070,21 @@
 
     /* Final Submit */
     $(document).on('click', '#lab-bf-submit', function() {
-        var $btn = $(this);
-        $btn.prop('disabled', true).text('Processing…');
+        var $btn  = $(this);
+        var price = parseFloat((window.labBfData && window.labBfData.service_price) || 0);
+        var stripeConfigured = (typeof labPaymentVars !== 'undefined' && labPaymentVars.stripe_pub_key);
 
-        if (window.labStripe && window.labStripeElements) {
-            /* Stripe flow: confirm payment first, then create booking */
+        /* Paid service with an online gateway: a real payment MUST happen.
+           Never silently create an unpaid booking just because the payment
+           form has not finished loading (e.g. user clicked too fast, or
+           stepped Back then forward, resetting the Stripe elements). */
+        if (price > 0 && stripeConfigured) {
+            if (!window.labStripe || !window.labStripeElements) {
+                showMsg('#lab-bf-final-msg', 'The payment form is still loading. Please wait a moment and try again.', 'error');
+                return;
+            }
+
+            $btn.prop('disabled', true).text('Processing…');
             window.labStripe.confirmPayment({
                 elements: window.labStripeElements,
                 redirect: 'if_required',
@@ -1083,19 +1093,23 @@
                 }
             }).then(function(result) {
                 if (result.error) {
-                    $btn.prop('disabled', false).text('Pay and Confirm →');
+                    $btn.prop('disabled', false).text('Pay & Confirm');
                     showMsg('#lab-bf-final-msg', result.error.message, 'error');
                 } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
                     labFinalizeBooking(result.paymentIntent.id, $btn);
                 } else {
-                    $btn.prop('disabled', false).text('Pay and Confirm →');
+                    $btn.prop('disabled', false).text('Pay & Confirm');
                     showMsg('#lab-bf-final-msg', 'Payment was not completed. Please try again.', 'error');
                 }
             });
-        } else {
-            /* No gateway configured — free service or offline payment */
-            labFinalizeBooking('', $btn);
+            return;
         }
+
+        /* Free service, or a paid service with no online gateway configured
+           (offline / arrange-with-business). Create the booking — the success
+           message reflects the real payment state returned by the server. */
+        $btn.prop('disabled', true).text('Processing…');
+        labFinalizeBooking('', $btn);
     });
 
     /* ── Payment Helpers ─────────────────────────────────────── */
@@ -1112,9 +1126,13 @@
             payment_intent_id: paymentIntentId || '',
             notes: (window.labBfData.notes || '') + ' | Name: ' + (window.labBfData.name || '') + ' | Phone: ' + (window.labBfData.phone || '')
         }, function(res) {
-            if ($btn) $btn.prop('disabled', false).text('Pay and Confirm →');
+            if ($btn) $btn.prop('disabled', false).text('Pay & Confirm');
             if (res.success) {
-                showMsg('#lab-bf-final-msg', '✓ Booking confirmed! Taking you to your dashboard…', 'success');
+                var paid = (res.data.payment_status === 'paid' || res.data.payment_status === 'free');
+                var msg  = paid
+                    ? '✓ Payment received — booking confirmed! Taking you to your dashboard…'
+                    : '✓ Booking requested. Payment is still outstanding — the business will contact you to arrange it. Taking you to your dashboard…';
+                showMsg('#lab-bf-final-msg', msg, 'success');
                 setTimeout(function() {
                     window.location.href = labVars.home_url + '/customer-dashboard/';
                 }, 2000);

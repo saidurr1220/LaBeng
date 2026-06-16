@@ -39,6 +39,7 @@ $bookings = $wpdb->get_results( $wpdb->prepare(
                 <th><?php esc_html_e( 'Date', 'labeng' ); ?></th>
                 <th><?php esc_html_e( 'Time', 'labeng' ); ?></th>
                 <th><?php esc_html_e( 'Status', 'labeng' ); ?></th>
+                <th><?php esc_html_e( 'Payment', 'labeng' ); ?></th>
                 <th><?php esc_html_e( 'Amount', 'labeng' ); ?></th>
                 <th><?php esc_html_e( 'Actions', 'labeng' ); ?></th>
             </tr>
@@ -46,6 +47,7 @@ $bookings = $wpdb->get_results( $wpdb->prepare(
         <tbody>
             <?php foreach ( $bookings as $b ) :
                 $customer = get_userdata( $b->customer_id );
+                $pay = $b->payment_status ? $b->payment_status : 'unpaid';
             ?>
             <tr class="lab-booking-row" data-status="<?php echo esc_attr( $b->status ); ?>" data-booking-id="<?php echo esc_attr( $b->id ); ?>">
                 <td><?php echo esc_html( $b->id ); ?></td>
@@ -54,6 +56,7 @@ $bookings = $wpdb->get_results( $wpdb->prepare(
                 <td><?php echo esc_html( date( 'M j, Y', strtotime( $b->booking_date ) ) ); ?></td>
                 <td><?php echo esc_html( date( 'g:i A', strtotime( $b->booking_time ) ) ); ?></td>
                 <td><span class="lab-badge lab-badge--<?php echo esc_attr( $b->status ); ?>" id="lab-badge-<?php echo esc_attr( $b->id ); ?>"><?php echo esc_html( ucfirst( $b->status ) ); ?></span></td>
+                <td><span class="lab-badge lab-badge--pay-<?php echo esc_attr( $pay ); ?>"><?php echo esc_html( ucfirst( $pay ) ); ?></span></td>
                 <td><?php echo esc_html( $cs . number_format( $b->total_amount, 2 ) ); ?></td>
                 <td class="lab-actions" id="lab-actions-<?php echo esc_attr( $b->id ); ?>">
                     <?php if ( $b->status === 'pending' ) : ?>

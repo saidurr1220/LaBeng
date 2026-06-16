@@ -279,9 +279,12 @@ class Lab_Bookings {
             wp_send_json_error( array( 'message' => $result->get_error_message() ) );
         }
 
+        $booking = self::get_booking( $result );
+
         wp_send_json_success( array(
-            'message'    => __( 'Booking created successfully! You will receive a confirmation email.', 'labeng' ),
-            'booking_id' => $result,
+            'message'        => __( 'Booking created successfully! You will receive a confirmation email.', 'labeng' ),
+            'booking_id'     => $result,
+            'payment_status' => $booking ? $booking->payment_status : 'unpaid',
         ) );
     }
 
