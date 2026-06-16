@@ -3158,7 +3158,6 @@ body.admin-bar .lab-global-header {
 @media (max-width: 768px) {
     body.lab-in-dashboard {
         padding-top: 0 !important;
-        margin-top: 0 !important;
     }
     .lab-dashboard-wrapper { padding: 0 0 4rem !important; }
     .lab-dashboard { display: block !important; margin-top: 0; min-height: 0 !important; }
@@ -3170,14 +3169,11 @@ body.admin-bar .lab-global-header {
         display: none !important;
     }
 
-    /* Adjust sticky dashboard topbar top when admin bar is present */
-    body.admin-bar .lab-dash-topbar {
-        top: 32px;
-    }
-    @media screen and (max-width: 782px) {
-        body.admin-bar .lab-dash-topbar {
-            top: 46px;
-        }
+    /* Adjust sticky dashboard topbar top when admin bar is present —
+       height is measured live via JS into --lab-adminbar-h, so this
+       tracks the real rendered admin-bar height instead of a guess. */
+    .lab-dash-topbar {
+        top: var(--lab-adminbar-h, 0px);
     }
 
     .lab-sidebar {

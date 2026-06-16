@@ -13,6 +13,16 @@
 
     if ($('.lab-dashboard').length > 0) {
         $('body').addClass('lab-in-dashboard');
+
+        /* Measure the real admin-bar height instead of guessing 32/46px —
+           hosting setups can render it at a different height than WP core defaults. */
+        var syncAdminBarHeight = function() {
+            var $bar = $('#wpadminbar');
+            var h = ($bar.length && $bar.is(':visible')) ? $bar.outerHeight() : 0;
+            document.documentElement.style.setProperty('--lab-adminbar-h', h + 'px');
+        };
+        syncAdminBarHeight();
+        $(window).on('resize', syncAdminBarHeight);
     }
 
     /* ── Hamburger Mobile Menu ───────────────────────────────── */
