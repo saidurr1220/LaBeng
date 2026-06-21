@@ -3677,22 +3677,30 @@ body.admin-bar .lab-global-header {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(17, 17, 19, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 15;
-    transition: background 0.2s, transform 0.2s;
+    background: rgba(17, 17, 19, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 15 !important;
+    transition: background 0.2s, transform 0.2s !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    line-height: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
 }
 .lab-carousel__nav-btn:hover {
-    background: #0d6efd;
-    transform: translateY(-50%) scale(1.1);
+    background: #0d6efd !important;
+    transform: translateY(-50%) scale(1.1) !important;
+    color: #fff !important;
 }
 .lab-carousel__nav-btn--prev {
     left: calc(50% - 502px);
