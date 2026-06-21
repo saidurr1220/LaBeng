@@ -3509,3 +3509,658 @@ body.admin-bar .lab-global-header {
 .lab-transition-overlay.is-loaded {
     opacity: 0;
 }
+
+/* ==========================================================================
+   Redesigned Client UI Additions
+   ========================================================================== */
+
+/* --- Dynamic Carousel Styling --- */
+.lab-hero__carousel-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: 480px;
+    margin: 2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lab-carousel {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.lab-carousel__track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 1000px;
+    overflow: visible;
+}
+.lab-carousel__slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.85);
+    width: 680px;
+    height: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, filter 0.5s ease, visibility 0.5s ease;
+    z-index: 1;
+    filter: blur(4px) brightness(0.4);
+    pointer-events: none;
+}
+.lab-carousel__slide--active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 10;
+    filter: none;
+    pointer-events: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+.lab-carousel__slide--prev {
+    opacity: 0.6;
+    visibility: visible;
+    transform: translate(-115%, -50%) scale(0.85);
+    z-index: 5;
+    filter: blur(2px) brightness(0.5);
+}
+.lab-carousel__slide--next {
+    opacity: 0.6;
+    visibility: visible;
+    transform: translate(15%, -50%) scale(0.85);
+    z-index: 5;
+    filter: blur(2px) brightness(0.5);
+}
+
+/* Card inside slide container */
+.lab-carousel__card-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #111113;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lab-carousel__card-image-wrap {
+    width: 100%;
+    height: 270px;
+    position: relative;
+    overflow: hidden;
+}
+.lab-carousel__card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.lab-carousel__card-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    z-index: 5;
+}
+.lab-carousel__card-footer {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111113;
+}
+.lab-carousel__card-info {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.lab-carousel__card-cat {
+    color: #3b82f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+.lab-carousel__card-title {
+    color: #fff;
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 700;
+}
+.lab-carousel__card-desc {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin: 0;
+}
+.lab-carousel__card-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+.lab-carousel__card-rating .star-icon {
+    color: #3b82f6;
+    font-size: 0.9rem;
+}
+.lab-carousel__card-rating .rating-val {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.lab-carousel__card-rating .reviews-count {
+    color: #666;
+    font-size: 0.8rem;
+}
+.lab-carousel__card-action .lab-btn--view {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s, transform 0.2s;
+}
+.lab-carousel__card-action .lab-btn--view:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Nav arrows */
+.lab-carousel__nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(17, 17, 19, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 15;
+    transition: background 0.2s, transform 0.2s;
+}
+.lab-carousel__nav-btn:hover {
+    background: #0d6efd;
+    transform: translateY(-50%) scale(1.1);
+}
+.lab-carousel__nav-btn--prev {
+    left: -20px;
+}
+.lab-carousel__nav-btn--next {
+    right: -20px;
+}
+
+/* Discover CTA on Homepage */
+.lab-hero__cta-wrap {
+    margin-top: 1.5rem;
+}
+.lab-btn--discover {
+    border-radius: 8px !important;
+    padding: 0.85rem 2.25rem !important;
+    font-size: 1rem !important;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.3);
+}
+
+/* --- Discover Page (Landing state) --- */
+.lab-explore-hero {
+    text-align: center;
+    padding: 3rem 1.5rem 2.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.lab-explore-hero__title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+.lab-explore-hero__title .highlight-blue {
+    color: #3b82f6;
+}
+.lab-explore-hero__subtitle {
+    color: #888;
+    font-size: 1.15rem;
+    margin-bottom: 2rem;
+}
+.lab-landing-search-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+.lab-landing-search-form {
+    display: flex;
+    gap: 0.5rem;
+    background: #111113;
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lab-landing-search-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    padding-left: 0.75rem;
+}
+.lab-landing-search-input-wrap .search-icon {
+    color: #555;
+}
+.lab-landing-search-input-wrap input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.95rem;
+}
+.lab-landing-search-form .lab-btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.75rem;
+    font-weight: 600;
+}
+
+/* Category grid (Landing) */
+.lab-popular-categories-section {
+    max-width: 1000px;
+    margin: 2rem auto 4rem;
+    padding: 0 1.5rem;
+}
+.lab-popular-categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.lab-popular-categories-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+.lab-popular-categories-header .see-all-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.lab-categories-grid-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+.lab-category-landing-card {
+    background: #111113;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.lab-category-landing-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.lab-category-landing-card__icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.lab-category-landing-card__name {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* --- Results State & Custom dropdown --- */
+.lab-explore-results-view {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 4rem;
+}
+.lab-back-categories-wrap {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+.lab-back-categories-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #888;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.lab-back-categories-link:hover {
+    color: #fff;
+}
+.lab-results-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0 0 1.5rem;
+}
+
+/* Filters inline row */
+.lab-inline-filters-search-wrap {
+    background: #111113;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-bottom: 2rem;
+}
+.lab-inline-search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.lab-inline-keyword-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    padding-left: 0.75rem;
+}
+.lab-inline-keyword-input-wrap .search-icon {
+    color: #555;
+}
+.lab-inline-keyword-input-wrap input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+/* Area dropdown in search bar */
+.lab-area-dropdown-wrapper {
+    position: relative;
+    min-width: 160px;
+}
+.lab-area-dropdown-trigger {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+.lab-area-dropdown-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.lab-area-dropdown-trigger .chevron-icon {
+    color: #666;
+}
+.lab-area-dropdown-box {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 260px;
+    background: #18181c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 100;
+    padding: 0.5rem;
+    display: none;
+}
+.lab-area-dropdown-box.open {
+    display: block;
+}
+.lab-area-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+}
+.lab-area-search-box .search-icon {
+    color: #555;
+}
+.lab-area-search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.85rem;
+    width: 100%;
+}
+.lab-area-options-list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.lab-area-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.lab-area-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+.lab-area-option.selected {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* Result toolbar list stats & sorting selectors */
+.lab-results-toolbar-filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 1rem;
+}
+.lab-results-count-stats {
+    font-size: 0.9rem;
+    color: #888;
+}
+.lab-results-right-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.lab-results-sorting-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.lab-results-sorting-select-wrap .sort-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+.lab-results-select-native {
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.lab-results-select-native option {
+    background: #111113;
+    color: #fff;
+}
+
+/* Results Grid overlay cards styling */
+.lab-business-grid--overlay {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+.lab-bcard--overlay {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 380px;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.lab-bcard--overlay:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.lab-bcard--overlay .lab-bcard__image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.lab-bcard--overlay .lab-bcard__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.lab-bcard__dark-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+    pointer-events: none;
+}
+.lab-bcard__overlay-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    z-index: 5;
+    text-align: left;
+}
+.lab-bcard__overlay-title {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+}
+.lab-bcard__overlay-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.lab-bcard__overlay-meta .rating-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.lab-bcard__overlay-meta .rating-info .star-icon {
+    color: #3b82f6;
+    font-size: 0.95rem;
+}
+.lab-bcard__overlay-meta .location-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #888;
+    font-size: 0.85rem;
+}
+.lab-bcard__overlay-meta .location-info .location-pin {
+    color: #3b82f6;
+}
+
+/* No results message */
+.lab-no-results-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Mobile responsive media queries */
+@media (max-width: 768px) {
+    .lab-carousel__slide {
+        width: 100%;
+        max-width: 440px;
+        height: 380px;
+    }
+    .lab-carousel__card-image-wrap {
+        height: 220px;
+    }
+    .lab-carousel__slide--prev {
+        transform: translate(-50%, -50%) scale(0.7) !important;
+        opacity: 0 !important;
+        pointer-events: none;
+    }
+    .lab-carousel__slide--next {
+        transform: translate(-50%, -50%) scale(0.7) !important;
+        opacity: 0 !important;
+        pointer-events: none;
+    }
+    .lab-carousel__nav-btn--prev {
+        left: 5px;
+    }
+    .lab-carousel__nav-btn--next {
+        right: 5px;
+    }
+    .lab-categories-grid-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .lab-inline-search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .lab-area-dropdown-wrapper {
+        min-width: 0;
+    }
+    .lab-area-dropdown-box {
+        right: auto;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .lab-business-grid--overlay {
+        grid-template-columns: 1fr;
+    }
+    .lab-bcard--overlay {
+        height: 320px;
+    }
+}

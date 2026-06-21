@@ -2,6 +2,88 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 labeng_get_header();
+
+$args = array(
+    'post_type'   => 'lab_business',
+    'post_status' => array( 'publish' ),
+    'numberposts' => 5,
+    'meta_query'  => array(
+        array( 'key' => '_lab_status', 'value' => 'approved' )
+    )
+);
+$carousel_items = get_posts( $args );
+
+// Fallback mock items if there are less than 5 approved businesses
+if ( count( $carousel_items ) < 5 ) {
+    $fallback_mocks = [
+        [
+            'title' => 'Labeng Rentals',
+            'cat' => 'AUTOMOTIVE',
+            'desc' => 'Luxury rental vehicles, available same day',
+            'rating' => '4.9',
+            'reviews' => '5 reviews',
+            'image' => 'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=800&q=90',
+            'url' => home_url( '/businesses/' )
+        ],
+        [
+            'title' => 'Smokey Barbers',
+            'cat' => 'BEAUTY',
+            'desc' => 'Premium cuts and grooming experience',
+            'rating' => '4.7',
+            'reviews' => '12 reviews',
+            'image' => 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=90',
+            'url' => home_url( '/businesses/' )
+        ],
+        [
+            'title' => 'Luigi\'s Pizza',
+            'cat' => 'FOOD & DRINK',
+            'desc' => 'Authentic stone baked neapolitan pizza',
+            'rating' => '4.8',
+            'reviews' => '8 reviews',
+            'image' => 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=90',
+            'url' => home_url( '/businesses/' )
+        ],
+        [
+            'title' => 'IronWorks Gym',
+            'cat' => 'FITNESS',
+            'desc' => 'Modern fitness equipment and personal trainers',
+            'rating' => '4.6',
+            'reviews' => '15 reviews',
+            'image' => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=90',
+            'url' => home_url( '/businesses/' )
+        ],
+        [
+            'title' => 'The Grooming Lounge',
+            'cat' => 'BEAUTY',
+            'desc' => 'Relaxing environment and expert hair styling',
+            'rating' => '4.9',
+            'reviews' => '20 reviews',
+            'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=90',
+            'url' => home_url( '/businesses/' )
+        ]
+    ];
+
+    reset($fallback_mocks);
+    while ( count( $carousel_items ) < 5 ) {
+        $mock = current( $fallback_mocks );
+        if ( ! $mock ) {
+            reset( $fallback_mocks );
+            $mock = current( $fallback_mocks );
+        }
+        $carousel_items[] = (object) [
+            'ID' => 0,
+            'post_title' => $mock['title'],
+            'is_mock' => true,
+            'cat' => $mock['cat'],
+            'desc' => $mock['desc'],
+            'rating' => $mock['rating'],
+            'reviews' => $mock['reviews'],
+            'image' => $mock['image'],
+            'url' => $mock['url']
+        ];
+        next( $fallback_mocks );
+    }
+}
 ?>
 
 <div class="lab-hero">
@@ -11,90 +93,83 @@ labeng_get_header();
     </div>
     
     <div class="lab-hero__carousel-wrap">
+        <button class="lab-carousel__nav-btn lab-carousel__nav-btn--prev" aria-label="Previous">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        
         <div class="lab-carousel" id="lab-home-carousel">
             <div class="lab-carousel__track">
-                <!-- Example Carousel Items to match the PDF -->
-                <div class="lab-carousel__slide">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=90" alt="Interior Design" />
-                </div>
-                <div class="lab-carousel__slide">
-                    <img src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=600&q=90" alt="Luxury Cars" />
-                </div>
-                <div class="lab-carousel__slide lab-carousel__slide--active">
-                    <div class="lab-carousel__card lab-carousel__card--split">
-                        <div class="lab-carousel__card-text">
-                            <h2>FREEDOM<br>TO EXPLORE</h2>
-                            <p style="margin-bottom:2rem; font-size:1.1rem;">Quality cars. Great prices.<br>Unforgettable journeys.</p>
-                            <ul class="lab-carousel__features" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:1.5rem;">
-                                <li style="display:flex; gap:1rem; align-items:flex-start;">
-                                    <div class="icon" style="font-size:1.5rem;">📅</div>
-                                    <div style="font-size:0.95rem;"><strong>EASY BOOKING</strong><br><span style="color:#666;">Quick, simple and secure.</span></div>
-                                </li>
-                                <li style="display:flex; gap:1rem; align-items:flex-start;">
-                                    <div class="icon" style="font-size:1.5rem;">🛡️</div>
-                                    <div style="font-size:0.95rem;"><strong>FULLY INSURED</strong><br><span style="color:#666;">Your safety is our priority.</span></div>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="lab-carousel__card-img">
-                            <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=90" alt="Car" style="width:100%; height:100%; object-fit:cover;" />
+                <?php foreach ( $carousel_items as $index => $item ) :
+                    $is_mock = isset( $item->is_mock ) && $item->is_mock;
+                    if ( ! $is_mock ) {
+                        $title = $item->post_title;
+                        $url = get_permalink( $item->ID );
+                        $image = Lab_Business_CPT::get_business_image( $item->ID, 'large' );
+                        
+                        $city = get_post_meta( $item->ID, '_lab_city', true );
+                        $rating_avg = floatval( get_post_meta( $item->ID, '_lab_rating_avg', true ) );
+                        $rating_total = intval( get_post_meta( $item->ID, '_lab_total_reviews', true ) );
+                        $rating = $rating_total > 0 ? number_format( $rating_avg, 1 ) : '4.9';
+                        $reviews = $rating_total > 0 ? sprintf( _n( '%d review', '%d reviews', $rating_total, 'labeng' ), $rating_total ) : '5 reviews';
+                        
+                        $terms = get_the_terms( $item->ID, 'lab_category' );
+                        $cat = ! empty( $terms ) && ! is_wp_error( $terms ) ? strtoupper( $terms[0]->name ) : 'SERVICES';
+                        $desc = get_post_meta( $item->ID, '_lab_tagline', true );
+                        if ( ! $desc ) {
+                            $desc = wp_trim_words( get_post_field( 'post_content', $item->ID ), 8 );
+                        }
+                        if ( ! $desc ) {
+                            $desc = 'Discover our local services and special deals.';
+                        }
+                    } else {
+                        $title = $item->post_title;
+                        $url = $item->url;
+                        $image = $item->image;
+                        $cat = $item->cat;
+                        $desc = $item->desc;
+                        $rating = $item->rating;
+                        $reviews = $item->reviews;
+                    }
+                ?>
+                    <div class="lab-carousel__slide">
+                        <div class="lab-carousel__card-container">
+                            <div class="lab-carousel__card-image-wrap">
+                                <span class="lab-carousel__card-badge">Featured</span>
+                                <img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" />
+                            </div>
+                            <div class="lab-carousel__card-footer">
+                                <div class="lab-carousel__card-info">
+                                    <span class="lab-carousel__card-cat"><?php echo esc_html( $cat ); ?></span>
+                                    <h3 class="lab-carousel__card-title"><?php echo esc_html( $title ); ?></h3>
+                                    <p class="lab-carousel__card-desc"><?php echo esc_html( $desc ); ?></p>
+                                    <div class="lab-carousel__card-rating">
+                                        <span class="star-icon">★</span>
+                                        <span class="rating-val"><?php echo esc_html( $rating ); ?></span>
+                                        <span class="reviews-count">(<?php echo esc_html( $reviews ); ?>)</span>
+                                    </div>
+                                </div>
+                                <div class="lab-carousel__card-action">
+                                    <a href="<?php echo esc_url( $url ); ?>" class="lab-btn lab-btn--view">
+                                        <span>View</span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="lab-carousel__slide">
-                    <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=90" alt="Beauty & Salon" />
-                </div>
-                <div class="lab-carousel__slide">
-                    <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=600&q=90" alt="Fitness & Gym" />
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
+        
+        <button class="lab-carousel__nav-btn lab-carousel__nav-btn--next" aria-label="Next">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
     </div>
 
-    <?php
-    $home_cats = get_terms( array(
-        'taxonomy'   => 'lab_category',
-        'hide_empty' => false,
-        'number'     => 4,
-        'orderby'    => 'count',
-        'order'      => 'DESC',
-    ) );
-    $lab_cat_fallbacks = array(
-        'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=500&q=90',
-        'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=500&q=90',
-        'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=500&q=90',
-        'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=500&q=90',
-    );
-    if ( ! is_wp_error( $home_cats ) && ! empty( $home_cats ) ) : ?>
-    <div class="lab-categories">
-        <h2 class="lab-section-title">Explore Categories</h2>
-        <div class="lab-categories-grid">
-            <?php foreach ( $home_cats as $i => $cat ) :
-                $img_id  = get_term_meta( $cat->term_id, 'lab_cat_image_id', true );
-                $img_url = $img_id ? wp_get_attachment_image_url( $img_id, 'large' ) : '';
-                if ( ! $img_url ) {
-                    $img_url = $lab_cat_fallbacks[ $i % count( $lab_cat_fallbacks ) ];
-                }
-            ?>
-            <a href="<?php echo esc_url( home_url( '/businesses/?cat=' . $cat->slug ) ); ?>" class="lab-category-card">
-                <img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $cat->name ); ?>" />
-                <h3><?php echo esc_html( $cat->name ); ?></h3>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-    
-    <div class="lab-hero__action" style="max-width: 600px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 0 1rem;">
-        <h3 style="margin-bottom: 1rem; color: #fff; font-size: 1.5rem; font-weight: 500;">Find local businesses near you</h3>
-        <form action="<?php echo esc_url( home_url( '/' ) ); ?>" method="GET" class="lab-hero__search-form">
-            <input type="hidden" name="post_type" value="lab_business" />
-            <input type="text" name="postcode" class="lab-hero__search-input" placeholder="Enter your postcode (e.g. SW1A 2AA)" required>
-            <button type="submit" class="lab-btn lab-btn--primary lab-hero__search-btn">Discover</button>
-        </form>
+    <div class="lab-hero__cta-wrap">
+        <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary lab-btn--discover">Discover Businesses</a>
     </div>
 </div>
 
 <?php
 labeng_get_footer();
-

@@ -69,6 +69,12 @@ class Lab_Business_CPT {
             return $url;
         }
 
+        /* 1.5. Mock thumb fallback */
+        $mock = get_post_meta( $business_id, '_lab_mock_thumb', true );
+        if ( $mock ) {
+            return $mock;
+        }
+
         /* 2. First gallery image directly (in case featured was never synced) */
         $gallery = get_post_meta( $business_id, '_lab_gallery', true );
         if ( ! empty( $gallery ) ) {
