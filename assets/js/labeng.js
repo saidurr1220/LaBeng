@@ -1306,136 +1306,19 @@
         }
     }
 
-    /* ── 13. Homepage Scroll Logo Animation ────────────────────── */
-    if ($('.lab-global-header--home').length > 0) {
-        (function() {
-        var $header = $('.lab-global-header');
-        var $hero   = $('.lab-hero');
-        var heroEl  = document.querySelector('.lab-hero__logo');
-        var tagEl   = document.querySelector('.lab-hero__tagline');
-        var navEl   = document.querySelector('.lab-global-header__logo-animated');
-
-        var isDesktop   = window.innerWidth > 768;
-        var ticking     = false;
-        var scrolledCls = false;
-        var fly         = null;
-
-        /* Measured geometry */
-        var heroAbsY, heroCX, navCX, navCY, scaleUp, END, flyW, flyH;
-
-        function ensureFly() {
-            if (fly) return;
-            fly = document.createElement('div');
-            fly.className = 'lab-logo-fly';
-            fly.textContent = (navEl && navEl.textContent.trim()) || 'LaBeng';
-            document.body.appendChild(fly);
-        }
-
-        function measure() {
-            isDesktop = window.innerWidth > 768;
-            if (!isDesktop || !heroEl || !navEl) return;
-            ensureFly();
-
-            var sy = window.scrollY || window.pageYOffset;
-            var hr = heroEl.getBoundingClientRect();
-            heroAbsY = hr.top + hr.height * 0.5 + sy;
-            heroCX   = hr.left + hr.width * 0.5;
-
-            /* Measure the nav logo's resting position in the scrolled (docked) header state.
-               Disable transitions so getBoundingClientRect() returns the true final position,
-               not a mid-transition value. Force a layout flush before reading. */
-            var had = $header.hasClass('lab-global-header--scrolled');
-            var savedHeaderTrans = $header[0].style.transition;
-            $header[0].style.transition = 'none';
-            $header.addClass('lab-global-header--scrolled');
-            var savedCss = navEl.style.cssText;
-            navEl.style.cssText = 'transition:none;max-width:400px;transform:none;opacity:1;';
-            void navEl.offsetWidth;                             // force layout flush
-            var lr = navEl.getBoundingClientRect();
-            if (!had) $header.removeClass('lab-global-header--scrolled');
-            $header[0].style.transition = savedHeaderTrans;
-            navEl.style.cssText = savedCss;
-
-            navCX = lr.left + lr.width  * 0.5;
-            navCY = lr.top  + lr.height * 0.5;
-
-            var heroFS = parseFloat(getComputedStyle(heroEl).fontSize) || 80;
-            var navFS  = parseFloat(getComputedStyle(navEl).fontSize)  || 44;
-            scaleUp    = heroFS / navFS;
-            END        = Math.max(220, heroAbsY - navCY);
-
-            fly.style.fontSize  = heroFS + 'px';
-            fly.style.opacity   = '1';
-            fly.classList.add('is-active');
-            fly.style.transform = 'none';
-            var fr = fly.getBoundingClientRect();
-            flyW = fr.width;
-            flyH = fr.height;
-
-            heroEl.style.transition = 'none';
-            heroEl.style.opacity    = '0';
-            if (tagEl) tagEl.style.transition = 'none';
-            navEl.style.transition    = 'max-width 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-            navEl.style.opacity       = '0';
-            navEl.style.pointerEvents = 'auto';
-        }
-
-        function frame() {
-            ticking = false;
-            var sy = window.scrollY || window.pageYOffset;
-
-            var want = sy > 60;
-            if (want !== scrolledCls) {
-                scrolledCls = want;
-                $header.toggleClass('lab-global-header--scrolled', want);
-            }
-
-            if (!isDesktop) {
-                $hero.toggleClass('lab-hero--scrolled', want);
-                if (fly) { fly.classList.remove('is-active'); }
-                return;
-            }
-
-            var p = Math.min(1, Math.max(0, sy / END));
-
-            /* At p ≥ 0.98 the clone is pixel-close to navEl — swap to the real logo.
-               This guarantees the docked position matches every other page exactly. */
-            if (p >= 0.98) {
-                navEl.style.opacity = '1';
-                if (fly) { fly.style.opacity = '0'; }
-                heroEl.style.opacity = '0';
-                return;
-            }
-
-            navEl.style.opacity = '0';
-            if (fly) {
-                fly.style.opacity = '1';
-                fly.classList.add('is-active');
-            }
-
-            var cx = heroCX + (navCX - heroCX) * p;
-            var cy = heroAbsY - (heroAbsY - navCY) * p;
-            var s  = 1.0 + ((1 / scaleUp) - 1.0) * p;
-
-            var tx = cx - flyW * 0.5;
-            var ty = cy - flyH * 0.5;
-            fly.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
-
-            heroEl.style.opacity = '0';
-            if (tagEl) tagEl.style.opacity = Math.max(0, 1 - p / 0.4).toFixed(3);
-        }
-
-        measure();
-        frame();
-
-        if (document.fonts && document.fonts.ready) {
-            document.fonts.ready.then(function() { measure(); frame(); });
-        }
-        $(window).on('resize', function() { measure(); frame(); });
+    /* ── 13. Simplified Header Scroll Handler ────────────────────── */
+    var $header = $('.lab-global-header');
+    if ($header.length > 0) {
         $(window).on('scroll', function() {
-            if (!ticking) { requestAnimationFrame(frame); ticking = true; }
+            var sy = window.scrollY || window.pageYOffset;
+            if (sy > 60) {
+                $header.addClass('lab-global-header--scrolled');
+            } else {
+                if ($header.hasClass('lab-global-header--home')) {
+                    $header.removeClass('lab-global-header--scrolled');
+                }
+            }
         });
-        })();
     }
 
     /* ── Invoice Modal Handlers ────────────────────────────────── */

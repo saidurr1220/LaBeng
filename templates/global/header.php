@@ -64,7 +64,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
     <header class="<?php echo esc_attr( $header_class ); ?>">
         <div class="lab-global-header__inner">
             <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="lab-global-header__logo">
-                LaBeng
+                <span class="blue-text">La</span><span>Beng</span>
             </a>
             
             <button class="lab-hamburger" id="lab-hamburger" aria-label="Toggle navigation" aria-expanded="false">
@@ -74,17 +74,10 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
             </button>
 
             <nav class="lab-global-header__nav" id="lab-main-nav">
-                <div class="lab-nav-group lab-nav-group--left">
+                <div class="lab-nav-links">
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo trailingslashit( home_url( '/' ) ) === trailingslashit( $current_url ) ? 'active' : ''; ?>">Home</a>
                     <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="<?php echo strpos( $current_url, '/businesses/' ) !== false ? 'active' : ''; ?>">Discover</a>
                     <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Deals</a>
-                </div>
-
-                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="lab-global-header__logo-animated">
-                    LaBeng
-                </a>
-
-                <div class="lab-nav-group lab-nav-group--right">
                     <a href="<?php echo esc_url( home_url( '/partner/' ) ); ?>" class="<?php echo strpos( $current_url, '/partner/' ) !== false ? 'active' : ''; ?>">Contact</a>
                     <?php if ( is_user_logged_in() ) : ?>
                         <?php
@@ -94,6 +87,11 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                         <?php else : ?>
                             <a href="<?php echo esc_url( home_url( '/customer-dashboard/' ) ); ?>" class="<?php echo strpos( $current_url, '/customer-dashboard/' ) !== false ? 'active' : ''; ?>">Profile</a>
                         <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div class="lab-nav-auth">
+                    <?php if ( is_user_logged_in() ) : ?>
                         <a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="lab-global-header__btn">Log out</a>
                     <?php else : ?>
                         <a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="lab-global-header__btn">Log in</a>
