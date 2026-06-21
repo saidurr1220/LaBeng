@@ -117,6 +117,7 @@ body.admin-bar .lab-global-header {
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
+    position: relative;
 }
 .lab-global-header__logo {
     display: inline-block;
@@ -155,6 +156,9 @@ body.admin-bar .lab-global-header {
     flex: 1;
 }
 .lab-nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     gap: 2.5rem;
     align-items: center;
@@ -176,15 +180,18 @@ body.admin-bar .lab-global-header {
     text-decoration-thickness: 2px;
 }
 .lab-global-header__nav a.lab-global-header__btn {
-    background: #fff;
-    color: #000;
+    background: transparent;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
     padding: 0.5rem 1.25rem;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: 600;
+    transition: background 0.2s, border-color 0.2s;
 }
 .lab-global-header__nav a.lab-global-header__btn:hover {
-    background: #ddd;
-    color: #000;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    color: #fff !important;
 }
 
 /* Buttons */
@@ -366,6 +373,8 @@ body.admin-bar .lab-global-header {
         padding-top: 7rem;
     }
     .lab-nav-links {
+        position: static;
+        transform: none;
         flex-direction: column;
         gap: 2rem;
         width: 100%;
@@ -3500,7 +3509,7 @@ body.admin-bar .lab-global-header {
 .lab-hero__carousel-wrap {
     position: relative;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     height: 480px;
     margin: 2rem auto;
     display: flex;
@@ -3524,7 +3533,7 @@ body.admin-bar .lab-global-header {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.85);
-    width: 880px;
+    width: 960px;
     height: 420px;
     border-radius: 16px;
     overflow: hidden;
@@ -3547,16 +3556,21 @@ body.admin-bar .lab-global-header {
 .lab-carousel__slide--prev {
     opacity: 0.6;
     visibility: visible;
-    transform: translate(calc(-50% - 660px), -50%) scale(0.85);
+    transform: translate(calc(-50% - 192px), -50%) scale(0.85);
     z-index: 5;
     filter: blur(2px) brightness(0.5);
 }
 .lab-carousel__slide--next {
     opacity: 0.6;
     visibility: visible;
-    transform: translate(calc(-50% + 660px), -50%) scale(0.85);
+    transform: translate(calc(-50% + 192px), -50%) scale(0.85);
     z-index: 5;
     filter: blur(2px) brightness(0.5);
+}
+.lab-carousel__slide:not(.lab-carousel__slide--active) .lab-carousel__card-footer {
+    opacity: 0 !important;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 /* Card inside slide container */
@@ -3681,10 +3695,10 @@ body.admin-bar .lab-global-header {
     transform: translateY(-50%) scale(1.1);
 }
 .lab-carousel__nav-btn--prev {
-    left: calc(50% - 462px);
+    left: calc(50% - 502px);
 }
 .lab-carousel__nav-btn--next {
-    right: calc(50% - 462px);
+    right: calc(50% - 502px);
 }
 
 /* Discover CTA on Homepage */

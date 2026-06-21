@@ -88,7 +88,7 @@ if ( count( $carousel_items ) < 5 ) {
 
 <div class="lab-hero">
     <div class="lab-hero__content">
-        <h1 class="lab-hero__logo"><span class="blue-text">La</span><span>Beng</span></h1>
+        <h1 class="lab-hero__logo"><span>La</span><span class="blue-text">Beng</span></h1>
         <p class="lab-hero__tagline">Where Great Businesses Get Discovered</p>
     </div>
     
