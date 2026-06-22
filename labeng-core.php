@@ -61,6 +61,179 @@ function labeng_core_init() {
     }
 }
 
+add_action( 'init', 'labeng_seed_car_rental_flow', 20 );
+function labeng_seed_car_rental_flow() {
+    if ( get_option( 'labeng_car_rental_seeded_v5' ) ) {
+        return;
+    }
+
+    // 1. Ensure "Car Rental" category term exists
+    $cat_slug = 'car-rental';
+    $term = get_term_by( 'slug', $cat_slug, 'lab_category' );
+    if ( ! $term ) {
+        $result = wp_insert_term(
+            'Car Rental',
+            'lab_category',
+            array(
+                'slug'        => $cat_slug,
+                'description' => 'Premium car hire and rental services.'
+            )
+        );
+        if ( ! is_wp_error( $result ) ) {
+            $term_id = $result['term_id'];
+        }
+    } else {
+        $term_id = $term->term_id;
+    }
+
+    // 2. Define custom booking steps JSON for Car Rental
+    $custom_steps = array(
+        array(
+            'title'   => 'Your Details',
+            'type'    => 'details',
+            'options' => array()
+        ),
+        array(
+            'title'   => 'Select a Vehicle',
+            'type'    => 'vehicles',
+            'options' => array(
+                array(
+                    'name'   => 'Mercedes A-Class',
+                    'price'  => 120,
+                    'factor' => 120,
+                    'image'  => 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
+                ),
+                array(
+                    'name'   => 'Mercedes V-Class',
+                    'price'  => 180,
+                    'factor' => 180,
+                    'image'  => 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80'
+                ),
+                array(
+                    'name'   => 'Ford Fiesta',
+                    'price'  => 45,
+                    'factor' => 45,
+                    'image'  => 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=600&q=80'
+                ),
+                array(
+                    'name'   => 'Vauxhall Corsa',
+                    'price'  => 40,
+                    'factor' => 40,
+                    'image'  => 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'
+                )
+            )
+        ),
+        array(
+            'title'   => 'Select a Service',
+            'type'    => 'services',
+            'options' => array(
+                array( 'name' => 'Short-term rental', 'price' => 0, 'factor' => 0, 'image' => '' ),
+                array( 'name' => 'Long-term rental', 'price' => 0, 'factor' => 0, 'image' => '' ),
+                array( 'name' => 'Airport transfer', 'price' => 25, 'factor' => 25, 'image' => '' ),
+                array( 'name' => 'Luxury hire', 'price' => 50, 'factor' => 50, 'image' => '' ),
+                array( 'name' => 'Big group rental', 'price' => 30, 'factor' => 30, 'image' => '' ),
+                array( 'name' => 'Business hire', 'price' => 20, 'factor' => 20, 'image' => '' )
+            )
+        ),
+        array(
+            'title'   => 'How long do you want the rental for?',
+            'type'    => 'duration',
+            'options' => array(
+                array( 'name' => '24 hours', 'price' => 1, 'factor' => 1, 'image' => '' ),
+                array( 'name' => '48 hours', 'price' => 2, 'factor' => 2, 'image' => '' ),
+                array( 'name' => '72 hours', 'price' => 3, 'factor' => 3, 'image' => '' )
+            )
+        ),
+        array(
+            'title'   => 'Select Date & Time',
+            'type'    => 'datetime',
+            'options' => array()
+        ),
+        array(
+            'title'   => 'Review & Pay',
+            'type'    => 'payment',
+            'options' => array()
+        )
+    );
+    $custom_steps_json = wp_json_encode( $custom_steps );
+
+    // 3. Seed two rental businesses: "LaBeng Rentals" and "Elite Car Hire"
+    $businesses = array(
+        array(
+            'title' => 'LaBeng Rentals',
+            'desc'  => 'Your trusted provider of clean, reliable, and premium car rental services. Drive the vehicle of your dreams today.',
+            'city'  => 'London',
+            'zip'   => 'EC1A 1BB',
+            'phone' => '+44 20 7946 0958',
+            'email' => 'rentals@labeng.com',
+            'thumb' => 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=85'
+        ),
+        array(
+            'title' => 'Elite Car Hire',
+            'desc'  => 'Elite Luxury and Standard vehicles for rent at competitive rates. Uncompromising service and high-quality vehicles.',
+            'city'  => 'Manchester',
+            'zip'   => 'M1 1AE',
+            'phone' => '+44 161 496 0192',
+            'email' => 'hire@elitecar.co.uk',
+            'thumb' => 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=85'
+        )
+    );
+
+    foreach ( $businesses as $biz_data ) {
+        // Check if business already exists by title
+        $existing = get_page_by_title( $biz_data['title'], OBJECT, 'lab_business' );
+        if ( ! $existing ) {
+            $post_id = wp_insert_post( array(
+                'post_title'   => $biz_data['title'],
+                'post_content' => $biz_data['desc'],
+                'post_status'  => 'publish',
+                'post_type'    => 'lab_business',
+                'post_author'  => 1
+            ) );
+        } else {
+            $post_id = $existing->ID;
+        }
+
+        if ( $post_id ) {
+            // Assign to Car Rental category
+            if ( isset( $term_id ) ) {
+                wp_set_object_terms( $post_id, intval( $term_id ), 'lab_category' );
+            }
+
+            // Save details meta
+            update_post_meta( $post_id, '_lab_status', 'approved' );
+            update_post_meta( $post_id, '_lab_city', $biz_data['city'] );
+            update_post_meta( $post_id, '_lab_postcode', $biz_data['zip'] );
+            update_post_meta( $post_id, '_lab_phone', $biz_data['phone'] );
+            update_post_meta( $post_id, '_lab_email', $biz_data['email'] );
+            update_post_meta( $post_id, '_lab_mock_thumb', $biz_data['thumb'] );
+            update_post_meta( $post_id, '_lab_booking_steps', $custom_steps_json );
+
+            // Setup working hours so slots are fully functional
+            $days = array( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' );
+            foreach ( $days as $d ) {
+                update_post_meta( $post_id, '_lab_avail_' . $d . '_open_check', '1' );
+                update_post_meta( $post_id, '_lab_avail_' . $d . '_open', '09:00' );
+                update_post_meta( $post_id, '_lab_avail_' . $d . '_close', '18:00' );
+            }
+
+            // Save standard services fallback array as well
+            $std_services = array(
+                array( 'name' => 'Short-term rental', 'price' => 0, 'duration' => 1440 ),
+                array( 'name' => 'Long-term rental', 'price' => 0, 'duration' => 1440 ),
+                array( 'name' => 'Airport transfer', 'price' => 25, 'duration' => 60 ),
+                array( 'name' => 'Luxury hire', 'price' => 50, 'duration' => 1440 ),
+                array( 'name' => 'Big group rental', 'price' => 30, 'duration' => 1440 ),
+                array( 'name' => 'Business hire', 'price' => 20, 'duration' => 1440 )
+            );
+            update_post_meta( $post_id, '_lab_services', wp_json_encode( $std_services ) );
+        }
+    }
+
+    update_option( 'labeng_car_rental_seeded_v5', 1 );
+}
+
+
 function lab_log_payment( $message, $data = array() ) {
     $logs = get_option( 'labeng_payment_logs', array() );
     if ( ! is_array( $logs ) ) {

@@ -115,6 +115,7 @@ $rating_total = intval( get_post_meta( $business_id, '_lab_total_reviews', true 
     window.labCurrentBusinessId = <?php echo absint( $business_id ); ?>;
     window.labCurrentServices = <?php echo wp_json_encode( $services ); ?>;
     window.labBusinessHours = <?php echo wp_json_encode( Lab_Availability::get_business_hours( $business_id ) ); ?>;
+    window.labBookingSteps = <?php echo wp_json_encode( json_decode( get_post_meta( $business_id, '_lab_booking_steps', true ), true ) ); ?>;
 </script>
 
 <?php

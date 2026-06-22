@@ -48,18 +48,38 @@ class Lab_Bookings {
             return new WP_Error( 'business_not_approved', __( 'This business is not currently accepting bookings.', 'labeng' ) );
         }
 
-        /* 3. Verify service exists in business services */
-        $services = json_decode( get_post_meta( $business_id, '_lab_services', true ), true );
+        /* 3. Verify service exists in business services or custom booking steps */
+        $booking_steps_json = get_post_meta( $business_id, '_lab_booking_steps', true );
+        $booking_steps      = json_decode( $booking_steps_json, true );
         $found = false;
-        if ( is_array( $services ) ) {
-            foreach ( $services as $svc ) {
-                if ( $svc['name'] === $service_name ) {
-                    $service_price = floatval( $svc['price'] );
-                    $found = true;
-                    break;
+
+        if ( ! empty( $booking_steps ) && is_array( $booking_steps ) ) {
+            foreach ( $booking_steps as $step ) {
+                if ( ! empty( $step['options'] ) && is_array( $step['options'] ) ) {
+                    foreach ( $step['options'] as $opt ) {
+                        if ( $opt['name'] === $service_name ) {
+                            $service_price = floatval( $data['service_price'] );
+                            $found = true;
+                            break 2;
+                        }
+                    }
                 }
             }
         }
+
+        if ( ! $found ) {
+            $services = json_decode( get_post_meta( $business_id, '_lab_services', true ), true );
+            if ( is_array( $services ) ) {
+                foreach ( $services as $svc ) {
+                    if ( $svc['name'] === $service_name ) {
+                        $service_price = floatval( $svc['price'] );
+                        $found = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         if ( ! $found ) {
             return new WP_Error( 'invalid_service', __( 'Service not found.', 'labeng' ) );
         }

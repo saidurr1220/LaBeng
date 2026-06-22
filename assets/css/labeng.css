@@ -4013,6 +4013,7 @@ body.admin-bar .lab-global-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 .lab-results-sorting-select-wrap .sort-label {
     font-size: 0.85rem;
@@ -4119,6 +4120,169 @@ body.admin-bar .lab-global-header {
     font-size: 0.95rem;
 }
 
+/* Booking Steps Dashboard Editor */
+.lab-booking-step-card {
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+.lab-booking-step-card__header {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.lab-booking-step-card__header .lab-field {
+    flex: 1;
+    margin-bottom: 0;
+}
+.lab-booking-step-card__header .lab-step-remove {
+    margin-bottom: 0;
+}
+.lab-booking-step-card__options {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 1rem;
+}
+.lab-booking-step-card__options h4 {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    color: #eee;
+}
+.lab-step-option-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+.lab-step-option-row .lab-field {
+    margin-bottom: 0;
+    flex: 1;
+}
+.lab-step-option-row .lab-field--sm {
+    max-width: 120px;
+}
+.opt-image-uploader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 250px;
+}
+.opt-image-uploader label {
+    margin-bottom: 0;
+}
+.opt-image-preview {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.opt-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.lab-booking-steps-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Frontend Multi-Step Stepper Premium Layout */
+.lab-bf-vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.lab-bf-vehicle-card {
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+.lab-bf-vehicle-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
+}
+.lab-bf-vehicle-card.selected {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+}
+.lab-vehicle-card__img {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.lab-vehicle-card__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.lab-vehicle-card__info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.lab-vehicle-card__name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.95rem;
+}
+.lab-vehicle-card__price {
+    font-size: 0.85rem;
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+/* Durations List Selector */
+.lab-bf-durations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+.lab-bf-duration-btn {
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    color: #eee;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+}
+.lab-bf-duration-btn:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
+}
+.lab-bf-duration-btn.selected {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+    color: #fff;
+}
+
 /* Mobile responsive media queries */
 @media (max-width: 768px) {
     .lab-carousel__slide {
@@ -4166,5 +4330,31 @@ body.admin-bar .lab-global-header {
     }
     .lab-bcard--overlay {
         height: 320px;
+    }
+    .lab-results-toolbar-filter {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .lab-results-right-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .lab-bf-vehicles-grid {
+        grid-template-columns: 1fr;
+    }
+    .lab-booking-step-card__header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    .lab-step-option-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .lab-step-option-row .lab-field--sm,
+    .opt-image-uploader {
+        max-width: none;
     }
 }

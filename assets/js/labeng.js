@@ -752,18 +752,148 @@
     });
 
     /* ── Booking Flow (Inline, multi-step) ─────────────────────── */
+    /* ── Booking Steps Tab Editor (Dashboard) ────────────────────── */
+    // Add Step
+    $(document).on('click', '#lab-add-booking-step', function() {
+        var template = document.getElementById('lab-booking-step-template');
+        if (template) {
+            var clone = template.content.cloneNode(true);
+            var $card = $(clone).appendTo('#lab-booking-steps-list');
+            $card.find('.lab-step-type-select').trigger('change');
+        }
+    });
+
+    // Remove Step
+    $(document).on('click', '.lab-step-remove', function() {
+        $(this).closest('.lab-booking-step-card').fadeOut(200, function() { $(this).remove(); });
+    });
+
+    // Toggle step options based on step type
+    $(document).on('change', '.lab-step-type-select', function() {
+        var type = $(this).val();
+        var showOpts = ['vehicles', 'services', 'duration'].indexOf(type) !== -1;
+        var $card = $(this).closest('.lab-booking-step-card');
+        $card.find('.lab-booking-step-card__options').toggle(showOpts);
+    });
+
+    // Add Option Row
+    $(document).on('click', '.lab-add-step-option', function() {
+        var template = document.getElementById('lab-booking-step-option-template');
+        if (template) {
+            var clone = template.content.cloneNode(true);
+            $(this).closest('.lab-booking-step-card').find('.lab-step-options-list').append(clone);
+        }
+    });
+
+    // Remove Option Row
+    $(document).on('click', '.lab-opt-remove', function() {
+        $(this).closest('.lab-step-option-row').remove();
+    });
+
+    // Upload Option Image
+    $(document).on('click', '.lab-opt-image-upload', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var $preview = $btn.siblings('.opt-image-preview');
+        var $input = $btn.siblings('.opt-image-val');
+
+        var frame = wp.media({
+            title: 'Select Option Image',
+            button: { text: 'Select Image' },
+            multiple: false
+        });
+
+        frame.on('select', function() {
+            var attachment = frame.state().get('selection').first().toJSON();
+            var url = attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+            $input.val(attachment.url);
+            $preview.html('<img src="' + url + '" style="max-height: 40px; border-radius: 4px;" />');
+        });
+
+        frame.open();
+    });
+
+    // Save Booking Steps
+    $(document).on('click', '#lab-save-booking-steps', function() {
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Saving...');
+
+        var steps = [];
+        $('#lab-booking-steps-list .lab-booking-step-card').each(function() {
+            var title = $(this).find('input[name="step_title[]"]').val();
+            var type  = $(this).find('select[name="step_type[]"]').val();
+            var options = [];
+
+            if (['vehicles', 'services', 'duration'].indexOf(type) !== -1) {
+                $(this).find('.lab-step-option-row').each(function() {
+                    var optName = $(this).find('.opt-name').val();
+                    var optPrice = parseFloat($(this).find('.opt-price').val()) || 0;
+                    var optImg = $(this).find('.opt-image-val').val() || '';
+                    if (optName) {
+                        options.push({
+                            name: optName,
+                            price: optPrice,
+                            factor: optPrice,
+                            image: optImg
+                        });
+                    }
+                });
+            }
+
+            if (title && type) {
+                steps.push({
+                    title: title,
+                    type: type,
+                    options: options
+                });
+            }
+        });
+
+        $.post(ajaxurl, {
+            action: 'lab_save_booking_steps',
+            nonce: nonce,
+            business_id: labVars.business_id,
+            steps: JSON.stringify(steps)
+        }, function(res) {
+            $btn.prop('disabled', false).text('Save Booking Steps');
+            if (res.success) {
+                showMsg('#lab-booking-steps-msg', res.data.message, 'success');
+            } else {
+                showMsg('#lab-booking-steps-msg', res.data.message, 'error');
+            }
+        });
+    });
+
+    /* ── Dynamic Booking Flow (Frontend) ────────────────────────── */
+    var defaultSteps = [
+        { type: 'services', title: 'Choose a service' },
+        { type: 'datetime', title: 'Select date & time' },
+        { type: 'details',  title: 'Your details' },
+        { type: 'payment',  title: 'Review & pay' }
+    ];
+
+    window.labBookingFlowSteps = window.labBookingSteps || defaultSteps;
+
     function labBfGoToStep(n) {
         window.labBfStep = n;
-        if (n === 2) labBfRenderCalendar();
-        if (n === 4) labBfPreparePayment();
-        for (var i = 1; i <= 4; i++) {
+        var totalSteps = window.labBookingFlowSteps.length;
+        
+        var currentStepObj = window.labBookingFlowSteps[n - 1];
+        if (currentStepObj) {
+            if (currentStepObj.type === 'datetime') labBfRenderCalendar();
+            if (currentStepObj.type === 'payment') labBfPreparePayment();
+        }
+
+        for (var i = 1; i <= totalSteps; i++) {
             $('#lab-bf-step-' + i).toggle(i === n);
         }
+
         $('.lab-bf-step-dot').each(function () {
             var s = parseInt($(this).data('step'), 10);
             $(this).toggleClass('lab-bf-step-dot--active', s === n)
                    .toggleClass('lab-bf-step-dot--done', s < n);
         });
+
         var $anchor = $('#lab-booking-inline');
         if ($anchor.length) {
             $('html, body').animate({ scrollTop: $anchor.offset().top - 90 }, 300);
@@ -791,14 +921,38 @@
 
     function labBfPreparePayment() {
         var cs = labVars.currency_symbol || '£';
-        var price = parseFloat(window.labBfData.service_price || 0);
-        var dateLabel = window.labBfData.dateLabel || window.labBfData.date || '—';
+        var vehiclePrice = parseFloat(window.labBfData.vehicle_price || 0);
+        var servicePrice = parseFloat(window.labBfData.service_price || 0);
+        var durationFactor = parseFloat(window.labBfData.duration_factor || 1);
+        
+        var basePrice = vehiclePrice + servicePrice;
+        var totalPrice = basePrice * durationFactor;
+        
+        window.labBfData.calculated_total = totalPrice;
+
         $('#lab-pay-service-name').text(window.labBfData.service_name || '—');
+        
+        if (window.labBfData.vehicle_name) {
+            $('#lab-pay-vehicle-row').show();
+            $('#lab-pay-vehicle-name').text(window.labBfData.vehicle_name);
+        } else {
+            $('#lab-pay-vehicle-row').hide();
+        }
+
+        if (window.labBfData.duration_name) {
+            $('#lab-pay-duration-row').show();
+            $('#lab-pay-duration-name').text(window.labBfData.duration_name);
+        } else {
+            $('#lab-pay-duration-row').hide();
+        }
+
+        var dateLabel = window.labBfData.dateLabel || window.labBfData.date || '—';
         $('#lab-pay-datetime').text(dateLabel + ' · ' + (window.labBfData.time || '—'));
-        $('#lab-pay-total').text(cs + price.toFixed(2));
+        $('#lab-pay-total').text(cs + totalPrice.toFixed(2));
+        
         window.labStripe = null;
         window.labStripeElements = null;
-        labInitPayment(price);
+        labInitPayment(totalPrice);
     }
 
     if ($('#lab-booking-inline').length > 0 && window.labCurrentBusinessId) {
@@ -815,109 +969,144 @@
                 '</div>'
             );
         } else {
-            var stepLabels = ['Service', 'Date & time', 'Your details', 'Payment'];
             var stepper = '<div class="lab-bf-steps">';
-            stepLabels.forEach(function (label, i) {
+            window.labBookingFlowSteps.forEach(function (step, i) {
                 stepper += '<div class="lab-bf-step-dot" data-step="' + (i + 1) + '">' +
                     '<span class="lab-bf-step-num">' + (i + 1) + '</span>' +
-                    '<span class="lab-bf-step-label">' + label + '</span>' +
+                    '<span class="lab-bf-step-label">' + step.title + '</span>' +
                 '</div>';
             });
             stepper += '</div>';
 
             var cs = labVars.currency_symbol || '£';
 
+            var stepsHtml = '';
+            window.labBookingFlowSteps.forEach(function (step, i) {
+                var stepNum = i + 1;
+                var backBtn = stepNum > 1 ? '<button type="button" class="lab-btn lab-bf-back" data-back="' + (stepNum - 1) + '">&larr; Back</button>' : '';
+                var content = '';
+
+                if (step.type === 'details') {
+                    content =
+                        '<form id="lab-bf-form-details" class="lab-form" data-step="' + stepNum + '">' +
+                            '<div class="lab-form-row lab-form-row--2col">' +
+                                '<div class="lab-field"><label>Full Name</label><input type="text" id="lab-bf-name" required /></div>' +
+                                '<div class="lab-field"><label>Email Address</label><input type="email" id="lab-bf-email" required /></div>' +
+                            '</div>' +
+                            '<div class="lab-field"><label>Mobile Number</label><input type="tel" id="lab-bf-phone" placeholder="+44" required /></div>' +
+                            '<div class="lab-field"><label>Notes (optional)</label><textarea id="lab-bf-notes" rows="3" placeholder="Anything the business should know?"></textarea></div>' +
+                            '<div class="lab-bf-actions lab-bf-actions--split">' +
+                                backBtn +
+                                '<button type="submit" class="lab-btn lab-btn--primary">Continue</button>' +
+                            '</div>' +
+                        '</form>';
+                } else if (step.type === 'vehicles') {
+                    var vehiclesHtml = '';
+                    if (step.options && step.options.length > 0) {
+                        step.options.forEach(function(opt) {
+                            var imgHtml = opt.image ? '<div class="lab-vehicle-card__img"><img src="' + opt.image + '" alt="' + opt.name + '"/></div>' : '';
+                            vehiclesHtml += '<button type="button" class="lab-bf-vehicle-card" data-name="' + opt.name + '" data-price="' + opt.price + '">' +
+                                imgHtml +
+                                '<div class="lab-vehicle-card__info">' +
+                                    '<span class="lab-vehicle-card__name">' + opt.name + '</span>' +
+                                    '<span class="lab-vehicle-card__price">' + cs + parseFloat(opt.price).toFixed(2) + '/day</span>' +
+                                '</div>' +
+                            '</button>';
+                        });
+                    }
+                    content =
+                        '<div class="lab-bf-vehicles-grid">' + vehiclesHtml + '</div>' +
+                        '<div class="lab-bf-actions lab-bf-actions--split">' +
+                            backBtn +
+                            '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="' + (stepNum + 1) + '" id="lab-bf-next-' + stepNum + '" disabled>Continue</button>' +
+                        '</div>';
+                } else if (step.type === 'services') {
+                    var servicesHtml = '';
+                    var servicesToRender = step.options && step.options.length > 0 ? step.options : window.labCurrentServices;
+                    if (!servicesToRender || servicesToRender.length === 0) {
+                        servicesToRender = [
+                            { name: 'Standard Consultation', price: 50 },
+                            { name: 'Premium Package', price: 150 },
+                            { name: 'Express Service', price: 75 }
+                        ];
+                    }
+                    servicesToRender.forEach(function (s) {
+                        servicesHtml += '<button type="button" class="lab-bf-svc-card" data-name="' + s.name + '" data-price="' + s.price + '">' +
+                            '<span class="lab-bf-svc-name">' + s.name + '</span>' +
+                            '<span class="lab-bf-svc-price">' + (parseFloat(s.price) > 0 ? cs + parseFloat(s.price).toFixed(2) : 'Free') + '</span>' +
+                        '</button>';
+                    });
+                    content =
+                        '<div class="lab-bf-services-grid">' + servicesHtml + '</div>' +
+                        '<div class="lab-bf-actions lab-bf-actions--split">' +
+                            backBtn +
+                            '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="' + (stepNum + 1) + '" id="lab-bf-next-' + stepNum + '" disabled>Continue</button>' +
+                        '</div>';
+                } else if (step.type === 'duration') {
+                    var durationsHtml = '';
+                    if (step.options && step.options.length > 0) {
+                        step.options.forEach(function(opt) {
+                            durationsHtml += '<button type="button" class="lab-bf-duration-btn" data-name="' + opt.name + '" data-factor="' + opt.price + '">' +
+                                opt.name +
+                            '</button>';
+                        });
+                    }
+                    content =
+                        '<div class="lab-bf-durations-list">' + durationsHtml + '</div>' +
+                        '<div class="lab-bf-actions lab-bf-actions--split">' +
+                            backBtn +
+                            '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="' + (stepNum + 1) + '" id="lab-bf-next-' + stepNum + '" disabled>Continue</button>' +
+                        '</div>';
+                } else if (step.type === 'datetime') {
+                    content =
+                        '<div class="lab-calendar-layout">' +
+                            '<div class="lab-calendar-dates">' +
+                                '<div class="lab-cal-head"><h4 id="lab-calendar-month-title"></h4></div>' +
+                                '<div class="lab-cal-dow"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>' +
+                                '<div class="lab-cal-grid" id="lab-bf-mock-dates"></div>' +
+                            '</div>' +
+                            '<div class="lab-calendar-times" id="lab-bf-time-slots-container">' +
+                                '<div class="lab-bf-slots-empty">Please select a date first.</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="lab-bf-actions lab-bf-actions--split">' +
+                            backBtn +
+                            '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="' + (stepNum + 1) + '" id="lab-bf-next-' + stepNum + '" disabled>Continue</button>' +
+                        '</div>';
+                } else if (step.type === 'payment') {
+                    content =
+                        '<div class="lab-bf-summary">' +
+                            '<div class="lab-bf-summary-row"><span>Service</span><strong id="lab-pay-service-name">—</strong></div>' +
+                            '<div id="lab-pay-vehicle-row" class="lab-bf-summary-row" style="display:none;"><span>Vehicle</span><strong id="lab-pay-vehicle-name">—</strong></div>' +
+                            '<div id="lab-pay-duration-row" class="lab-bf-summary-row" style="display:none;"><span>Duration</span><strong id="lab-pay-duration-name">—</strong></div>' +
+                            '<div class="lab-bf-summary-row"><span>When</span><strong id="lab-pay-datetime">—</strong></div>' +
+                            '<div class="lab-bf-summary-row lab-bf-summary-row--total"><span>Total</span><strong id="lab-pay-total">' + cs + '0.00</strong></div>' +
+                        '</div>' +
+                        '<div id="lab-stripe-payment-element"></div>' +
+                        '<div id="lab-paypal-button-container"></div>' +
+                        '<div id="lab-bf-final-msg" class="lab-msg" style="display:none;"></div>' +
+                        '<div class="lab-bf-actions lab-bf-actions--split">' +
+                            backBtn +
+                            '<button type="button" class="lab-btn lab-btn--primary" id="lab-bf-submit">Pay &amp; Confirm</button>' +
+                        '</div>';
+                }
+
+                stepsHtml +=
+                    '<div id="lab-bf-step-' + stepNum + '" class="lab-bf-step" style="display:none;">' +
+                        '<div class="lab-bf-card">' +
+                            content +
+                        '</div>' +
+                    '</div>';
+            });
+
             var html =
                 '<div class="lab-bf-container">' +
                     '<h2 class="lab-bf-title">Book your appointment</h2>' +
                     stepper +
-
-                    '<div id="lab-bf-step-1" class="lab-bf-step">' +
-                        '<div class="lab-bf-card">' +
-                            '<h3 class="lab-bf-step-title">Choose a service</h3>' +
-                            '<div class="lab-bf-services-grid" id="lab-bf-services-grid"></div>' +
-                            '<div class="lab-bf-actions">' +
-                                '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="2" id="lab-bf-next-1" disabled>Continue</button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-
-                    '<div id="lab-bf-step-2" class="lab-bf-step" style="display:none;">' +
-                        '<div class="lab-bf-card">' +
-                            '<h3 class="lab-bf-step-title">Select date &amp; time</h3>' +
-                            '<div class="lab-calendar-layout">' +
-                                '<div class="lab-calendar-dates">' +
-                                    '<div class="lab-cal-head"><h4 id="lab-calendar-month-title"></h4></div>' +
-                                    '<div class="lab-cal-dow"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>' +
-                                    '<div class="lab-cal-grid" id="lab-bf-mock-dates"></div>' +
-                                '</div>' +
-                                '<div class="lab-calendar-times" id="lab-bf-time-slots-container">' +
-                                    '<div class="lab-bf-slots-empty">Please select a date first.</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="lab-bf-actions lab-bf-actions--split">' +
-                                '<button type="button" class="lab-btn lab-bf-back" data-back="1">&larr; Back</button>' +
-                                '<button type="button" class="lab-btn lab-btn--primary lab-bf-next" data-next="3" id="lab-bf-next-2" disabled>Continue</button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-
-                    '<div id="lab-bf-step-3" class="lab-bf-step" style="display:none;">' +
-                        '<div class="lab-bf-card">' +
-                            '<h3 class="lab-bf-step-title">Your details</h3>' +
-                            '<form id="lab-bf-form-1" class="lab-form">' +
-                                '<div class="lab-form-row lab-form-row--2col">' +
-                                    '<div class="lab-field"><label>Full Name</label><input type="text" id="lab-bf-name" required /></div>' +
-                                    '<div class="lab-field"><label>Email Address</label><input type="email" id="lab-bf-email" required /></div>' +
-                                '</div>' +
-                                '<div class="lab-field"><label>Mobile Number</label><input type="tel" id="lab-bf-phone" placeholder="+44" required /></div>' +
-                                '<div class="lab-field"><label>Notes (optional)</label><textarea id="lab-bf-notes" rows="3" placeholder="Anything the business should know?"></textarea></div>' +
-                                '<div class="lab-bf-actions lab-bf-actions--split">' +
-                                    '<button type="button" class="lab-btn lab-bf-back" data-back="2">&larr; Back</button>' +
-                                    '<button type="submit" class="lab-btn lab-btn--primary">Continue</button>' +
-                                '</div>' +
-                            '</form>' +
-                        '</div>' +
-                    '</div>' +
-
-                    '<div id="lab-bf-step-4" class="lab-bf-step" style="display:none;">' +
-                        '<div class="lab-bf-card">' +
-                            '<h3 class="lab-bf-step-title">Review &amp; pay</h3>' +
-                            '<div class="lab-bf-summary">' +
-                                '<div class="lab-bf-summary-row"><span>Service</span><strong id="lab-pay-service-name">—</strong></div>' +
-                                '<div class="lab-bf-summary-row"><span>When</span><strong id="lab-pay-datetime">—</strong></div>' +
-                                '<div class="lab-bf-summary-row lab-bf-summary-row--total"><span>Total</span><strong id="lab-pay-total">' + cs + '0.00</strong></div>' +
-                            '</div>' +
-                            '<div id="lab-stripe-payment-element"></div>' +
-                            '<div id="lab-paypal-button-container"></div>' +
-                            '<div id="lab-bf-final-msg" class="lab-msg" style="display:none;"></div>' +
-                            '<div class="lab-bf-actions lab-bf-actions--split">' +
-                                '<button type="button" class="lab-btn lab-bf-back" data-back="3">&larr; Back</button>' +
-                                '<button type="button" class="lab-btn lab-btn--primary" id="lab-bf-submit">Pay &amp; Confirm</button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
+                    stepsHtml +
                 '</div>';
 
             $('#lab-booking-inline').html(html);
-
-            /* Render services */
-            var servicesToRender = window.labCurrentServices;
-            if (!servicesToRender || servicesToRender.length === 0) {
-                servicesToRender = [
-                    { name: 'Standard Consultation', price: 50 },
-                    { name: 'Premium Package', price: 150 },
-                    { name: 'Express Service', price: 75 }
-                ];
-            }
-            var svcHtml = '';
-            servicesToRender.forEach(function (s) {
-                svcHtml += '<button type="button" class="lab-bf-svc-card" data-name="' + s.name + '" data-price="' + s.price + '">' +
-                    '<span class="lab-bf-svc-name">' + s.name + '</span>' +
-                    '<span class="lab-bf-svc-price">' + cs + parseFloat(s.price).toFixed(2) + '</span>' +
-                '</button>';
-            });
-            $('#lab-bf-services-grid').html(svcHtml);
 
             /* Prefill details from account */
             $('#lab-bf-name').val(labVars.user_name || '');
@@ -928,14 +1117,56 @@
         }
     }
 
-    /* Select service (step 1) */
+    /* Select vehicle */
+    $(document).on('click', '.lab-bf-vehicle-card', function () {
+        $('.lab-bf-vehicle-card').removeClass('selected');
+        $(this).addClass('selected');
+        window.labBfData = window.labBfData || {};
+        window.labBfData.vehicle_name = $(this).data('name');
+        window.labBfData.vehicle_price = parseFloat($(this).data('price')) || 0;
+
+        var stepId = $(this).closest('.lab-bf-step').attr('id');
+        var stepNum = stepId.replace('lab-bf-step-', '');
+        $('#lab-bf-next-' + stepNum).prop('disabled', false);
+    });
+
+    /* Select duration factor */
+    $(document).on('click', '.lab-bf-duration-btn', function () {
+        $('.lab-bf-duration-btn').removeClass('selected');
+        $(this).addClass('selected');
+        window.labBfData = window.labBfData || {};
+        window.labBfData.duration_name = $(this).text().trim();
+        window.labBfData.duration_factor = parseFloat($(this).data('factor')) || 1;
+
+        var stepId = $(this).closest('.lab-bf-step').attr('id');
+        var stepNum = stepId.replace('lab-bf-step-', '');
+        $('#lab-bf-next-' + stepNum).prop('disabled', false);
+    });
+
+    /* Select service */
     $(document).on('click', '.lab-bf-svc-card', function () {
         $('.lab-bf-svc-card').removeClass('selected');
         $(this).addClass('selected');
         window.labBfData = window.labBfData || {};
         window.labBfData.service_name = $(this).data('name');
-        window.labBfData.service_price = $(this).data('price');
-        $('#lab-bf-next-1').prop('disabled', false);
+        window.labBfData.service_price = parseFloat($(this).data('price')) || 0;
+
+        var stepId = $(this).closest('.lab-bf-step').attr('id');
+        var stepNum = stepId.replace('lab-bf-step-', '');
+        $('#lab-bf-next-' + stepNum).prop('disabled', false);
+    });
+
+    /* Submit details form step */
+    $(document).on('submit', '#lab-bf-form-details', function (e) {
+        e.preventDefault();
+        window.labBfData = window.labBfData || {};
+        window.labBfData.name = $('#lab-bf-name').val();
+        window.labBfData.email = $('#lab-bf-email').val();
+        window.labBfData.phone = $('#lab-bf-phone').val();
+        window.labBfData.notes = $('#lab-bf-notes').val();
+
+        var stepNum = parseInt($(this).data('step'), 10);
+        labBfGoToStep(stepNum + 1);
     });
 
     /* Generic Next / Back navigation */
@@ -944,17 +1175,6 @@
     });
     $(document).on('click', '.lab-bf-back', function () {
         labBfGoToStep(parseInt($(this).data('back'), 10));
-    });
-
-    /* Step 3 (details) submit -> step 4 */
-    $(document).on('submit', '#lab-bf-form-1', function (e) {
-        e.preventDefault();
-        window.labBfData = window.labBfData || {};
-        window.labBfData.name = $('#lab-bf-name').val();
-        window.labBfData.email = $('#lab-bf-email').val();
-        window.labBfData.phone = $('#lab-bf-phone').val();
-        window.labBfData.notes = $('#lab-bf-notes').val();
-        labBfGoToStep(4);
     });
 
     /* Select date (step 2) */
@@ -1003,19 +1223,27 @@
                 $container.html('<div class="lab-bf-slots-empty lab-bf-slots-empty--closed">Closed on this day.</div>');
             }
         } else {
-            $container.html('<div class="lab-bf-slots-empty lab-bf-slots-empty--closed">Hours not configured.</div>');
+            var morningHtml = '<button type="button" class="lab-time-btn">09:00</button><button type="button" class="lab-time-btn">10:00</button><button type="button" class="lab-time-btn">11:00</button>';
+            var afternoonHtml = '<button type="button" class="lab-time-btn">13:00</button><button type="button" class="lab-time-btn">14:00</button><button type="button" class="lab-time-btn">15:00</button>';
+            var fullHtml = slotGroup('Morning', morningHtml) + slotGroup('Afternoon', afternoonHtml);
+            $container.html(fullHtml);
         }
         window.labBfData.time = null;
-        $('#lab-bf-next-2').prop('disabled', true);
+        var stepId = $(this).closest('.lab-bf-step').attr('id');
+        var stepNum = stepId.replace('lab-bf-step-', '');
+        $('#lab-bf-next-' + stepNum).prop('disabled', true);
     });
 
-    /* Select time (step 2) */
+    /* Select time */
     $(document).on('click', '.lab-time-btn:not(.lab-time-btn--disabled)', function () {
         $('.lab-time-btn').removeClass('lab-time-btn--selected');
         $(this).addClass('lab-time-btn--selected');
         window.labBfData = window.labBfData || {};
         window.labBfData.time = $(this).text();
-        $('#lab-bf-next-2').prop('disabled', false);
+
+        var stepId = $(this).closest('.lab-bf-step').attr('id');
+        var stepNum = stepId.replace('lab-bf-step-', '');
+        $('#lab-bf-next-' + stepNum).prop('disabled', false);
     });
 
     /* Redesigned Homepage Carousel Logic */

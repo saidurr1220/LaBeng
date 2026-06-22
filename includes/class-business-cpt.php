@@ -36,6 +36,7 @@ class Lab_Business_CPT {
 
         /* AJAX: Business owner actions */
         add_action( 'wp_ajax_lab_save_services',     array( __CLASS__, 'ajax_save_services' ) );
+        add_action( 'wp_ajax_lab_save_booking_steps', array( __CLASS__, 'ajax_save_booking_steps' ) );
         add_action( 'wp_ajax_lab_update_business',   array( __CLASS__, 'ajax_update_business' ) );
         add_action( 'wp_ajax_lab_search_businesses',        array( __CLASS__, 'ajax_search_businesses' ) );
         add_action( 'wp_ajax_nopriv_lab_search_businesses', array( __CLASS__, 'ajax_search_businesses' ) );
@@ -143,6 +144,54 @@ class Lab_Business_CPT {
         update_post_meta( $business_id, '_lab_services', wp_json_encode( $clean ) );
 
         wp_send_json_success( array( 'message' => __( 'Services saved successfully.', 'labeng' ) ) );
+    }
+
+    /**
+     * AJAX: Save custom booking steps as JSON.
+     */
+    public static function ajax_save_booking_steps() {
+        check_ajax_referer( 'lab_nonce', 'nonce' );
+
+        if ( ! is_user_logged_in() || ! current_user_can( 'lab_manage_own_services' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'labeng' ) ) );
+        }
+
+        $business_id = absint( $_POST['business_id'] ?? 0 );
+        $owner_id    = get_post_meta( $business_id, '_lab_owner_id', true );
+
+        if ( absint( $owner_id ) !== get_current_user_id() ) {
+            wp_send_json_error( array( 'message' => __( 'Not your business.', 'labeng' ) ) );
+        }
+
+        $steps_raw = $_POST['steps'] ?? '[]';
+        $steps = json_decode( wp_unslash( $steps_raw ), true );
+        if ( ! is_array( $steps ) ) $steps = array();
+
+        /* Sanitize each step */
+        $clean = array();
+        foreach ( $steps as $step ) {
+            $clean_options = array();
+            if ( ! empty( $step['options'] ) && is_array( $step['options'] ) ) {
+                foreach ( $step['options'] as $opt ) {
+                    $clean_options[] = array(
+                        'name'   => sanitize_text_field( $opt['name'] ?? '' ),
+                        'price'  => floatval( $opt['price'] ?? 0 ),
+                        'factor' => floatval( $opt['price'] ?? 0 ), // Keep factor and price synced for durations
+                        'image'  => esc_url_raw( $opt['image'] ?? '' ),
+                    );
+                }
+            }
+
+            $clean[] = array(
+                'title'   => sanitize_text_field( $step['title'] ?? '' ),
+                'type'    => sanitize_key( $step['type'] ?? '' ),
+                'options' => $clean_options,
+            );
+        }
+
+        update_post_meta( $business_id, '_lab_booking_steps', wp_json_encode( $clean ) );
+
+        wp_send_json_success( array( 'message' => __( 'Booking steps saved successfully.', 'labeng' ) ) );
     }
 
     /**
