@@ -70,7 +70,7 @@ labeng_get_header();
     </div>
     
     <div class="lab-deals-more">
-        <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--white">Explore All Businesses</a>
+        <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary">See More Deals</a>
     </div>
 </div>
 

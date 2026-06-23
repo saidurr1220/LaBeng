@@ -29,9 +29,8 @@ labeng_get_header();
             </ul>
 
             <div class="lab-partner-cta-box">
-                <strong>Ready to get started?</strong>
-                <p>Create your free business listing in minutes — set up services, availability and start taking bookings once approved.</p>
-                <a href="<?php echo esc_url( home_url( '/business-register/' ) ); ?>" class="lab-btn lab-btn--white">Register your business →</a>
+                <strong>Have Questions?</strong>
+                <p>We're here to help - send us a message and we'll get back to you</p>
             </div>
         </div>
 
@@ -74,7 +73,7 @@ labeng_get_header();
                         <label>Message</label>
                         <textarea name="message" rows="4" placeholder="Tell us about your business and how we can help" required></textarea>
                     </div>
-                    <button type="submit" class="lab-btn lab-btn--primary lab-btn--full">Send Message</button>
+                    <button type="submit" class="lab-btn lab-btn--primary lab-btn--full">Submit</button>
                 </form>
             </div>
         </div>

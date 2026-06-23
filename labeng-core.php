@@ -268,7 +268,7 @@ add_action( 'wp_enqueue_scripts', 'labeng_enqueue_assets' );
 function labeng_enqueue_assets() {
     wp_enqueue_style(
         'labeng-fonts',
-        'https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap',
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap',
         array(),
         null
     );
