@@ -578,6 +578,15 @@ function labeng_admin_menu() {
 
     add_submenu_page(
         'labeng-dashboard',
+        __( 'Branding', 'labeng' ),
+        __( 'Branding', 'labeng' ),
+        'manage_options',
+        'labeng-branding',
+        'labeng_admin_branding_page'
+    );
+
+    add_submenu_page(
+        'labeng-dashboard',
         __( 'Settings', 'labeng' ),
         __( 'Settings', 'labeng' ),
         'manage_options',
@@ -606,6 +615,29 @@ function labeng_admin_menu() {
 
 function labeng_admin_payment_settings_page() {
     require_once LABENG_PATH . 'admin/payment-settings.php';
+}
+
+function labeng_admin_branding_page() {
+    require_once LABENG_PATH . 'admin/branding-settings.php';
+}
+
+/* Output favicon from the uploaded branding (falls back to the logo). */
+add_action( 'wp_head', 'labeng_output_favicon', 5 );
+add_action( 'login_head', 'labeng_output_favicon', 5 );
+function labeng_output_favicon() {
+    $fid = (int) get_option( 'lab_favicon_id', 0 );
+    if ( ! $fid ) {
+        $fid = (int) get_option( 'lab_logo_id', 0 );
+    }
+    if ( ! $fid ) {
+        return;
+    }
+    $url = wp_get_attachment_image_url( $fid, 'full' );
+    if ( ! $url ) {
+        return;
+    }
+    echo '<link rel="icon" href="' . esc_url( $url ) . '" />' . "\n";
+    echo '<link rel="apple-touch-icon" href="' . esc_url( $url ) . '" />' . "\n";
 }
 
 function labeng_admin_email_logs_page() {

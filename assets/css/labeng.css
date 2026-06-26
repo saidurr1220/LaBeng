@@ -133,6 +133,15 @@ body.admin-bar .lab-global-header {
 .blue-text {
     color: #1FCFE0 !important;
 }
+/* Uploaded navbar logo/monogram image (#1) */
+.lab-global-header__logo-img {
+    height: 46px;
+    width: auto;
+    display: block;
+}
+@media (max-width: 768px) {
+    .lab-global-header__logo-img { height: 38px; }
+}
 .lab-global-header__logo:hover {
     color: #fff;
     opacity: 0.9;
