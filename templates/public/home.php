@@ -89,7 +89,7 @@ if ( count( $carousel_items ) < 5 ) {
 <div class="lab-hero">
     <div class="lab-hero__content">
         <h1 class="lab-hero__logo"><span class="blue-text">LA</span><span>BENG</span></h1>
-        <p class="lab-hero__tagline">Where Great Businesses Get Discovered</p>
+        <p class="lab-hero__tagline">Discover and Elevate Exciting Businesses</p>
     </div>
 
     <div class="lab-hero__cta-wrap">

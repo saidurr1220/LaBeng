@@ -93,7 +93,7 @@ a:hover { opacity: 0.8; }
     border-bottom: 1px solid transparent;
 }
 .lab-global-header--scrolled {
-    background: rgba(10, 10, 12, 0.75);
+    background: rgba(8, 8, 10, 0.97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 1rem 3rem;
@@ -122,9 +122,13 @@ body.admin-bar .lab-global-header {
     position: relative;
 }
 .lab-global-header__logo {
-    display: inline-block;
-    font-family: var(--lab-font-logo);
-    font-size: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--lab-font-heading);
+    font-size: 1.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
     color: #fff;
     text-decoration: none !important;
     line-height: 1.2;
@@ -453,7 +457,7 @@ body.admin-bar .lab-global-header {
 .lab-hero__content {
     position: relative;
     z-index: 10;
-    padding: 1.5rem 2rem 2rem;
+    padding: 1.5rem 2rem 0.5rem;
     max-width: 860px;
     width: 100%;
     margin: 0 auto 0;
