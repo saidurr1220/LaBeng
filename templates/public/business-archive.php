@@ -90,23 +90,54 @@ sort( $dropdown_areas );
             
             <div class="lab-categories-grid-cards">
                 <?php
+                // Default stock images per category slug (used only when no image is
+                // uploaded for the category in WP Admin → Categories). Admin-uploaded
+                // images always take priority, keeping categories fully manageable.
+                $cat_image_fallbacks = array(
+                    'transportation' => 'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=600&q=80',
+                    'car-rental'     => 'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=600&q=80',
+                    'accommodation'  => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
+                    'food-drink'     => 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80',
+                    'fitness'        => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=600&q=80',
+                    'beauty'         => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+                    'hospitality'    => 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=600&q=80',
+                    'technology'     => 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+                    'services'       => 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80',
+                );
+
                 if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
                     foreach ( $categories as $term ) {
-                        // Match with our design configurations
-                        $slug = $term->slug;
+                        $slug   = $term->slug;
                         $config = isset( $cat_design_map[$slug] ) ? $cat_design_map[$slug] : array(
                             'name'  => $term->name,
                             'color' => '#1FCFE0',
                             'bg'    => 'rgba(31, 207, 224, 0.12)',
                             'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
                         );
-                        
+
+                        // Admin-uploaded image (term meta) → stock fallback by slug → icon.
+                        $img_id  = get_term_meta( $term->term_id, 'lab_cat_image_id', true );
+                        $img_url = '';
+                        if ( $img_id ) {
+                            $img_url = wp_get_attachment_image_url( $img_id, 'medium' );
+                        }
+                        if ( ! $img_url && isset( $cat_image_fallbacks[ $slug ] ) ) {
+                            $img_url = $cat_image_fallbacks[ $slug ];
+                        }
+
                         $cat_url = esc_url( add_query_arg( 'cat', $term->slug, home_url( '/businesses/' ) ) );
                         ?>
-                        <a href="<?php echo $cat_url; ?>" class="lab-category-landing-card">
-                            <div class="lab-category-landing-card__icon-wrap" style="background: <?php echo esc_attr($config['bg']); ?>; color: <?php echo esc_attr($config['color']); ?>;">
-                                <?php echo $config['svg']; ?>
-                            </div>
+                        <a href="<?php echo $cat_url; ?>" class="lab-category-landing-card<?php echo $img_url ? ' lab-category-landing-card--has-image' : ''; ?>">
+                            <?php if ( $img_url ) : ?>
+                                <div class="lab-category-landing-card__image">
+                                    <img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $config['name'] ); ?>" loading="lazy" />
+                                    <span class="lab-category-landing-card__overlay"></span>
+                                </div>
+                            <?php else : ?>
+                                <div class="lab-category-landing-card__icon-wrap" style="background: <?php echo esc_attr($config['bg']); ?>; color: <?php echo esc_attr($config['color']); ?>;">
+                                    <?php echo $config['svg']; ?>
+                                </div>
+                            <?php endif; ?>
                             <span class="lab-category-landing-card__name"><?php echo esc_html( $config['name'] ); ?></span>
                         </a>
                         <?php
