@@ -3534,52 +3534,70 @@ body.admin-bar .lab-global-header {
     position: relative;
     width: 100%;
     height: 100%;
-    perspective: 1000px;
     overflow: visible;
 }
+/* 5-card coverflow (restored previous behaviour, #4) */
 .lab-carousel__slide {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.85);
-    width: 960px;
-    height: 420px;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 280px;
+    height: 360px;
     border-radius: 16px;
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, filter 0.5s ease, visibility 0.5s ease;
+    cursor: pointer;
+    transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1), width 0.55s ease, height 0.55s ease, opacity 0.5s ease, visibility 0.5s ease;
     z-index: 1;
-    filter: blur(4px) brightness(0.4);
     pointer-events: none;
 }
 .lab-carousel__slide--active {
+    width: 720px;
+    height: 440px;
     opacity: 1;
     visibility: visible;
     transform: translate(-50%, -50%) scale(1);
     z-index: 10;
-    filter: none;
     pointer-events: auto;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 .lab-carousel__slide--prev {
-    opacity: 0.6;
+    opacity: 0.55;
     visibility: visible;
-    transform: translate(calc(-50% - 192px), -50%) scale(0.85);
+    transform: translate(calc(-50% - 430px), -50%) scale(0.82);
     z-index: 5;
-    filter: blur(2px) brightness(0.5);
+    pointer-events: auto;
 }
 .lab-carousel__slide--next {
-    opacity: 0.6;
+    opacity: 0.55;
     visibility: visible;
-    transform: translate(calc(-50% + 192px), -50%) scale(0.85);
+    transform: translate(calc(-50% + 430px), -50%) scale(0.82);
     z-index: 5;
-    filter: blur(2px) brightness(0.5);
+    pointer-events: auto;
+}
+.lab-carousel__slide--prev2 {
+    opacity: 0.28;
+    visibility: visible;
+    transform: translate(calc(-50% - 560px), -50%) scale(0.68);
+    z-index: 2;
+    pointer-events: auto;
+}
+.lab-carousel__slide--next2 {
+    opacity: 0.28;
+    visibility: visible;
+    transform: translate(calc(-50% + 560px), -50%) scale(0.68);
+    z-index: 2;
+    pointer-events: auto;
 }
 .lab-carousel__slide:not(.lab-carousel__slide--active) .lab-carousel__card-footer {
     opacity: 0 !important;
     visibility: hidden;
     transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.lab-carousel__slide:not(.lab-carousel__slide--active) .lab-carousel__card-image-wrap {
+    height: 100%;
 }
 
 /* Card inside slide container */
@@ -4504,3 +4522,17 @@ body.admin-bar .lab-global-header {
 }
 .lab-hero__nearby-link:hover { color: var(--lab-primary); }
 .lab-hero__cta-wrap { display: flex; flex-direction: column; align-items: center; }
+
+/* Carousel coverflow — mobile shows active card only (#4 / #14) */
+@media (max-width: 900px) {
+    .lab-hero__carousel-wrap { height: 430px; }
+    .lab-carousel__slide--active { width: 88vw; max-width: 520px; height: 400px; }
+    .lab-carousel__slide--prev,
+    .lab-carousel__slide--next,
+    .lab-carousel__slide--prev2,
+    .lab-carousel__slide--next2 {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}

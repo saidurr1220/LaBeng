@@ -77,7 +77,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                 <div class="lab-nav-links">
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo trailingslashit( home_url( '/' ) ) === trailingslashit( $current_url ) ? 'active' : ''; ?>">Home</a>
                     <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="<?php echo strpos( $current_url, '/businesses/' ) !== false ? 'active' : ''; ?>">Discover</a>
-                    <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Deals</a>
+                    <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Hot Deals</a>
                     <a href="<?php echo esc_url( home_url( '/partner/' ) ); ?>" class="<?php echo strpos( $current_url, '/partner/' ) !== false ? 'active' : ''; ?>">Contact</a>
                     <?php if ( is_user_logged_in() ) : ?>
                         <?php

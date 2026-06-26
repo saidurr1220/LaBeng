@@ -1271,34 +1271,32 @@
         $('#lab-bf-next-' + stepNum).prop('disabled', false);
     });
 
-    /* Redesigned Homepage Carousel Logic */
+    /* Homepage Carousel — 5-card coverflow (restored previous behaviour, #4) */
     var $slides = $('.lab-carousel__slide');
     if ($slides.length > 0) {
-        var activeIndex = 0;
+        var total = $slides.length;
+        var activeIndex = total >= 5 ? 2 : 0;
         var slideInterval;
 
         function updateCarousel() {
-            $slides.removeClass('lab-carousel__slide--active lab-carousel__slide--prev lab-carousel__slide--next');
-            
-            var total = $slides.length;
-            var prevIndex = (activeIndex - 1 + total) % total;
-            var nextIndex = (activeIndex + 1) % total;
+            $slides.removeClass('lab-carousel__slide--active lab-carousel__slide--prev lab-carousel__slide--next lab-carousel__slide--prev2 lab-carousel__slide--next2');
 
             $slides.each(function(index) {
-                if (index === activeIndex) {
-                    $(this).addClass('lab-carousel__slide--active');
-                } else if (index === prevIndex) {
-                    $(this).addClass('lab-carousel__slide--prev');
-                } else if (index === nextIndex) {
-                    $(this).addClass('lab-carousel__slide--next');
-                }
+                var diff = index - activeIndex;
+                if (diff < 0) diff += total;
+
+                if (diff === 0) $(this).addClass('lab-carousel__slide--active');
+                else if (diff === 1) $(this).addClass('lab-carousel__slide--next');
+                else if (diff === 2) $(this).addClass('lab-carousel__slide--next2');
+                else if (diff === total - 2) $(this).addClass('lab-carousel__slide--prev2');
+                else if (diff === total - 1) $(this).addClass('lab-carousel__slide--prev');
             });
         }
 
         function startAuto() {
             clearInterval(slideInterval);
             slideInterval = setInterval(function() {
-                activeIndex = (activeIndex + 1) % $slides.length;
+                activeIndex = (activeIndex + 1) % total;
                 updateCarousel();
             }, 5000);
         }
@@ -1309,19 +1307,18 @@
         // Arrow controls
         $(document).on('click', '.lab-carousel__nav-btn--prev', function(e) {
             e.preventDefault();
-            activeIndex = (activeIndex - 1 + $slides.length) % $slides.length;
+            activeIndex = (activeIndex - 1 + total) % total;
             updateCarousel();
             startAuto();
         });
-
         $(document).on('click', '.lab-carousel__nav-btn--next', function(e) {
             e.preventDefault();
-            activeIndex = (activeIndex + 1) % $slides.length;
+            activeIndex = (activeIndex + 1) % total;
             updateCarousel();
             startAuto();
         });
 
-        // Slide click to focus
+        // Click a side card to focus it
         $slides.on('click', function() {
             var idx = $(this).index();
             if (idx !== activeIndex) {
