@@ -11,7 +11,7 @@ $current_url = home_url( $_SERVER['REQUEST_URI'] );
     <title><?php wp_title( '|', true, 'right' ); bloginfo( 'name' ); ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <?php wp_head(); ?>
     <style>
     /* Critical mobile header alignment & padding fixes to prevent overlap & gaps */

@@ -88,10 +88,14 @@ if ( count( $carousel_items ) < 5 ) {
 
 <div class="lab-hero">
     <div class="lab-hero__content">
-        <h1 class="lab-hero__logo"><span>La</span><span class="blue-text">Beng</span></h1>
+        <h1 class="lab-hero__logo"><span class="blue-text">LA</span><span>BENG</span></h1>
         <p class="lab-hero__tagline">Where Great Businesses Get Discovered</p>
     </div>
-    
+
+    <div class="lab-hero__cta-wrap">
+        <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary lab-btn--discover">Discover Businesses</a>
+    </div>
+
     <div class="lab-hero__carousel-wrap">
         <button class="lab-carousel__nav-btn lab-carousel__nav-btn--prev" aria-label="Previous">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
@@ -164,10 +168,6 @@ if ( count( $carousel_items ) < 5 ) {
         <button class="lab-carousel__nav-btn lab-carousel__nav-btn--next" aria-label="Next">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-    </div>
-
-    <div class="lab-hero__cta-wrap">
-        <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary lab-btn--discover">Discover Businesses</a>
     </div>
 </div>
 

@@ -268,7 +268,7 @@ add_action( 'wp_enqueue_scripts', 'labeng_enqueue_assets' );
 function labeng_enqueue_assets() {
     wp_enqueue_style(
         'labeng-fonts',
-        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap',
+        'https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap',
         array(),
         null
     );
@@ -671,7 +671,7 @@ function labeng_admin_dashboard_page() {
                 </div>
                 <div style="background:linear-gradient(135deg,#16314d 0%,#0f1f33 100%);color:#fff;padding:24px 32px;border-radius:12px;min-width:200px;">
                     <div style="font-size:13px;color:#9ec5fe;">Platform Commission</div>
-                    <div style="font-size:32px;font-weight:600;color:#4d94ff;"><?php echo esc_html( $cs . number_format( $total_commission, 2 ) ); ?></div>
+                    <div style="font-size:32px;font-weight:600;color:#5FE0EC;"><?php echo esc_html( $cs . number_format( $total_commission, 2 ) ); ?></div>
                     <div style="font-size:11px;color:#6b8fb5;margin-top:4px;">Your earnings</div>
                 </div>
                 <div style="background:#1a1a2e;color:#fff;padding:24px 32px;border-radius:12px;min-width:200px;">
@@ -798,7 +798,7 @@ function labeng_admin_dashboard_page() {
                                 <td><?php echo esc_html( $u->first_name . ' ' . $u->last_name ); ?></td>
                                 <td><a href="mailto:<?php echo esc_attr( $u->user_email ); ?>"><?php echo esc_html( $u->user_email ); ?></a></td>
                                 <td>
-                                    <span style="font-weight:600; color:<?php echo $role_slug === 'business_owner' ? '#198754' : ($role_slug === 'subscriber' ? '#f79e1b' : '#0d6efd'); ?>;">
+                                    <span style="font-weight:600; color:<?php echo $role_slug === 'business_owner' ? '#198754' : ($role_slug === 'subscriber' ? '#f79e1b' : '#1FCFE0'); ?>;">
                                         <?php echo esc_html( $role_display ); ?>
                                     </span>
                                 </td>

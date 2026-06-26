@@ -56,7 +56,7 @@ class Lab_Email {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0b;padding:40px 16px;">
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141417;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;">
-    <tr><td style="height:4px;background:linear-gradient(90deg,#0d6efd 0%,#4d94ff 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
+    <tr><td style="height:4px;background:linear-gradient(90deg,#1FCFE0 0%,#5FE0EC 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
     <tr><td align="center" style="padding:34px 32px 6px;">
         <div style="font-family:\'Great Vibes\',\'Brush Script MT\',cursive;font-size:48px;line-height:1;color:#ffffff;">LaBeng</div>
         <div style="color:#6b6b7a;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:8px;">On-Demand Booking Network</div>
@@ -131,7 +131,7 @@ class Lab_Email {
               . '</tr>'
               . '<tr>'
               . '<td colspan="2" align="right" style="padding:14px 0 4px; font-weight:600; color:#ffffff;">Total ' . ( $booking->payment_status === 'paid' ? 'Paid' : 'Due' ) . '</td>'
-              . '<td align="right" style="padding:14px 0 4px; color:#4d94ff; font-weight:bold; font-size:17px;">' . esc_html($cs . $amount) . '</td>'
+              . '<td align="right" style="padding:14px 0 4px; color:#5FE0EC; font-weight:bold; font-size:17px;">' . esc_html($cs . $amount) . '</td>'
               . '</tr>'
               . '<tr>'
               . '<td colspan="2" align="right" style="padding:4px 0; font-weight:600;">Payment Status</td>'
@@ -172,7 +172,7 @@ class Lab_Email {
               . self::row( 'Time', date( 'g:i A', strtotime( $booking->booking_time ) ) )
               . self::row( 'Amount', $cs . number_format( $booking->total_amount, 2 ) )
               . ( $booking->notes ? self::row( 'Notes', $booking->notes ) : '' )
-              . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/business-dashboard/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#0d6efd;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">View in Dashboard</a></p>';
+              . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/business-dashboard/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">View in Dashboard</a></p>';
 
         $to      = $owner ? $owner->user_email : '';
         $subject = 'New Booking – ' . $booking->service_name;
@@ -200,7 +200,7 @@ class Lab_Email {
         $label = isset( $status_labels[ $new_status ] ) ? $status_labels[ $new_status ] : ucfirst( $new_status );
 
         $status_colors = array(
-            'confirmed' => '#0d6efd',
+            'confirmed' => '#1FCFE0',
             'completed' => '#198754',
             'cancelled' => '#dc3545',
         );
@@ -231,7 +231,7 @@ class Lab_Email {
         $body = self::row( 'Business Name', $biz_name )
               . self::row( 'Owner', $owner_name )
               . self::row( 'Email', $email )
-              . '<p style="margin:20px 0 0;"><a href="' . esc_url( $review_url ) . '" style="display:inline-block;padding:12px 24px;background:#0d6efd;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Review Application</a></p>';
+              . '<p style="margin:20px 0 0;"><a href="' . esc_url( $review_url ) . '" style="display:inline-block;padding:12px 24px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Review Application</a></p>';
 
         self::send( $admin_email, 'New Business Registration: ' . $biz_name, self::wrap( 'New Business Registration', $body ) );
     }

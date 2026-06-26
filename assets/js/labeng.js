@@ -1347,7 +1347,7 @@
         $(this).addClass('selected');
         
         if (val !== '') {
-            $(this).append('<svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');
+            $(this).append('<svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1FCFE0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');
         }
         
         $('#lab-area-dropdown-box').removeClass('open');
@@ -1482,7 +1482,7 @@
                     clientSecret: res.data.client_secret,
                     appearance: {
                         theme: 'night',
-                        variables: { colorPrimary: '#0d6efd', borderRadius: '8px' }
+                        variables: { colorPrimary: '#1FCFE0', borderRadius: '8px' }
                     }
                 });
                 var paymentElement = elements.create('payment', {
@@ -1845,6 +1845,26 @@
                 }, 300);
             }
         }
+    });
+
+    /* Password visibility toggle (registration + login + business signup) */
+    $(function() {
+        var eyeOpen = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var eyeOff  = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+        $('.lab-auth-page input[type="password"]').each(function() {
+            var $input = $(this);
+            if ($input.parent().hasClass('lab-pass-field')) return;
+            $input.wrap('<div class="lab-pass-field"></div>');
+            var $btn = $('<button type="button" class="lab-pass-toggle" aria-label="Show password" tabindex="-1"></button>').html(eyeOff);
+            $input.after($btn);
+            $btn.on('click', function() {
+                var show = $input.attr('type') === 'password';
+                $input.attr('type', show ? 'text' : 'password');
+                $btn.html(show ? eyeOpen : eyeOff);
+                $btn.attr('aria-label', show ? 'Hide password' : 'Show password');
+            });
+        });
     });
 
 })(jQuery);

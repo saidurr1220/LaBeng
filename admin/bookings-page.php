@@ -110,14 +110,14 @@ $businesses = get_posts( array( 'post_type' => 'lab_business', 'numberposts' => 
                     <td><?php echo esc_html( date( 'g:i A', strtotime( $b->booking_time ) ) ); ?></td>
                     <td>
                         <?php
-                        $colors = array( 'pending' => '#ffc107', 'confirmed' => '#0d6efd', 'completed' => '#198754', 'cancelled' => '#dc3545' );
+                        $colors = array( 'pending' => '#ffc107', 'confirmed' => '#1FCFE0', 'completed' => '#198754', 'cancelled' => '#dc3545' );
                         $c = isset( $colors[ $b->status ] ) ? $colors[ $b->status ] : '#888';
                         ?>
                         <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;background:<?php echo esc_attr( $c ); ?>;"><?php echo esc_html( ucfirst( $b->status ) ); ?></span>
                     </td>
                     <td>
                         <?php
-                        $pay_colors = array( 'paid' => '#198754', 'unpaid' => '#ffc107', 'free' => '#0d6efd', 'refunded' => '#6c757d' );
+                        $pay_colors = array( 'paid' => '#198754', 'unpaid' => '#ffc107', 'free' => '#1FCFE0', 'refunded' => '#6c757d' );
                         $pc = isset( $pay_colors[ $b->payment_status ] ) ? $pay_colors[ $b->payment_status ] : '#888';
                         ?>
                         <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;background:<?php echo esc_attr( $pc ); ?>;"><?php echo esc_html( ucfirst( $b->payment_status ) ); ?></span>
