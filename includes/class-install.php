@@ -126,6 +126,16 @@ class Lab_Install {
                 'slug'      => 'partner',
                 'shortcode' => '',
             ),
+            array(
+                'title'     => 'Contact Us',
+                'slug'      => 'contact-us',
+                'shortcode' => '',
+            ),
+            array(
+                'title'     => 'Find Businesses Near Me',
+                'slug'      => 'find-near-me',
+                'shortcode' => '',
+            ),
         );
 
         $home_id = 0;

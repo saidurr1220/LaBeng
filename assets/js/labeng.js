@@ -650,6 +650,31 @@
         });
     });
 
+    /* Customer Inquiry (contact form on /contact-us/) */
+    $(document).on('submit', '#lab-customer-contact-form', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $btn = $form.find('button[type="submit"]');
+        $btn.prop('disabled', true).text('Sending...');
+
+        $.post(ajaxurl, {
+            action: 'lab_customer_inquiry',
+            nonce: nonce,
+            name: $form.find('[name="name"]').val(),
+            email: $form.find('[name="email"]').val(),
+            subject: $form.find('[name="subject"]').val(),
+            message: $form.find('[name="message"]').val()
+        }, function(res) {
+            $btn.prop('disabled', false).text('Submit');
+            if (res.success) {
+                showMsg('#lab-customer-contact-msg', res.data.message, 'success');
+                $form[0].reset();
+            } else {
+                showMsg('#lab-customer-contact-msg', res.data.message, 'error');
+            }
+        });
+    });
+
     /* ── Business Profile Edit (My Business tab) ──────────────── */
     $(document).on('submit', '#lab-biz-edit-form', function(e) {
         e.preventDefault();

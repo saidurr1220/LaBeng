@@ -4420,3 +4420,49 @@ body.admin-bar .lab-global-header {
     color: var(--lab-primary) !important;
 }
 .lab-sidebar__link--browse .lab-sidebar__icon { color: var(--lab-primary); }
+
+/* ── Find Businesses Near Me (#11) ───────────────────────────── */
+.lab-near-page { max-width: 1200px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+.lab-near-hero { text-align: center; margin-bottom: 2.5rem; }
+.lab-near-hero__title { font-family: var(--lab-font-heading); font-size: 2.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+.lab-near-hero__title .highlight-blue { color: var(--lab-primary); }
+.lab-near-hero__subtitle { color: var(--lab-text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+.lab-near-search-form { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; max-width: 640px; margin: 0 auto; }
+.lab-near-search-input-wrap { position: relative; flex: 1 1 320px; }
+.lab-near-search-input-wrap .lab-near-pin { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--lab-text-muted); }
+.lab-near-search-input-wrap input { width: 100%; padding: 0.95rem 1rem 0.95rem 2.85rem !important; }
+.lab-near-results { margin-top: 1rem; }
+.lab-near-results .lab-results-count-stats { margin-bottom: 1.25rem; color: var(--lab-text-muted); }
+.lab-near-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.lab-near-card { background: var(--lab-bg-card); border: 1px solid var(--lab-border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s ease, border-color 0.2s ease; }
+.lab-near-card:hover { transform: translateY(-4px); border-color: rgba(31, 207, 224, 0.4); }
+.lab-near-card__image { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+.lab-near-card__image img { width: 100%; height: 100%; object-fit: cover; }
+.lab-near-card__cat { position: absolute; top: 0.75rem; left: 0.75rem; background: var(--lab-primary); color: #00131a; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.3rem 0.6rem; border-radius: 6px; }
+.lab-near-card__body { padding: 1.1rem 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
+.lab-near-card__title { font-family: var(--lab-font-heading); font-size: 1.15rem; font-weight: 700; margin: 0; }
+.lab-near-card__rating { display: flex; align-items: center; gap: 0.35rem; font-size: 0.92rem; }
+.lab-near-card__rating .star-icon { color: var(--lab-primary); }
+.lab-near-card__rating .reviews-count { color: var(--lab-text-muted); }
+.lab-near-card__address { display: flex; align-items: center; gap: 0.4rem; color: var(--lab-text-muted); font-size: 0.88rem; }
+.lab-near-card__btn { margin-top: auto; width: 100%; }
+@media (max-width: 600px) {
+    .lab-near-page { padding-top: 8rem; }
+    .lab-near-hero__title { font-size: 2rem; }
+    .lab-near-grid { grid-template-columns: 1fr; }
+}
+
+/* Homepage "Find businesses near me" secondary link (#11) */
+.lab-hero__nearby-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    color: var(--lab-text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.lab-hero__nearby-link:hover { color: var(--lab-primary); }
+.lab-hero__cta-wrap { display: flex; flex-direction: column; align-items: center; }

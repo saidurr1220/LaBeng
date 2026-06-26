@@ -17,9 +17,13 @@ class Lab_Auth {
         /* AJAX: login */
         add_action( 'wp_ajax_nopriv_lab_login', array( __CLASS__, 'ajax_login' ) );
 
-        /* AJAX: partner inquiry (contact form) */
+        /* AJAX: partner inquiry (business contact form) */
         add_action( 'wp_ajax_nopriv_lab_partner_inquiry', array( __CLASS__, 'ajax_partner_inquiry' ) );
         add_action( 'wp_ajax_lab_partner_inquiry',        array( __CLASS__, 'ajax_partner_inquiry' ) );
+
+        /* AJAX: customer inquiry (customer contact form) */
+        add_action( 'wp_ajax_nopriv_lab_customer_inquiry', array( __CLASS__, 'ajax_customer_inquiry' ) );
+        add_action( 'wp_ajax_lab_customer_inquiry',        array( __CLASS__, 'ajax_customer_inquiry' ) );
 
         /* AJAX: update profile */
         add_action( 'wp_ajax_lab_update_profile', array( __CLASS__, 'ajax_update_profile' ) );
@@ -442,6 +446,60 @@ class Lab_Auth {
             $inquiries = array_slice( $inquiries, 0, 200 );
         }
         update_option( 'lab_partner_inquiries', $inquiries );
+
+        wp_send_json_success( array(
+            'message' => __( 'Thanks for reaching out! Our team will get back to you shortly.', 'labeng' ),
+        ) );
+    }
+
+    /* ──────────────────────────────────────────────────────────
+     * AJAX: Customer inquiry (customer contact form)
+     * ────────────────────────────────────────────────────────── */
+    public static function ajax_customer_inquiry() {
+        check_ajax_referer( 'lab_nonce', 'nonce' );
+
+        $name    = sanitize_text_field( $_POST['name'] ?? '' );
+        $email   = sanitize_email( $_POST['email'] ?? '' );
+        $subject = sanitize_text_field( $_POST['subject'] ?? '' );
+        $message = sanitize_textarea_field( $_POST['message'] ?? '' );
+
+        if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please fill in your name, email and message.', 'labeng' ) ) );
+        }
+        if ( ! is_email( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a valid email address.', 'labeng' ) ) );
+        }
+
+        /* Build admin email */
+        $admin_email = get_option( 'admin_email' );
+        $subj_line   = $subject
+            ? sprintf( __( 'Customer enquiry: %s', 'labeng' ), $subject )
+            : sprintf( __( 'New customer enquiry from %s', 'labeng' ), $name );
+        $body  = "You have received a new customer enquiry via the LaBeng website.\n\n";
+        $body .= "Name: {$name}\n";
+        $body .= "Email: {$email}\n";
+        if ( $subject ) $body .= "Subject: {$subject}\n";
+        $body .= "\nMessage:\n{$message}\n";
+
+        $headers = array( 'Reply-To: ' . $name . ' <' . $email . '>' );
+        wp_mail( $admin_email, $subj_line, $body, $headers );
+
+        /* Keep a record of customer enquiries for the admin */
+        $inquiries = get_option( 'lab_customer_inquiries', array() );
+        if ( ! is_array( $inquiries ) ) {
+            $inquiries = array();
+        }
+        array_unshift( $inquiries, array(
+            'time'    => current_time( 'mysql' ),
+            'name'    => $name,
+            'email'   => $email,
+            'subject' => $subject,
+            'message' => $message,
+        ) );
+        if ( count( $inquiries ) > 200 ) {
+            $inquiries = array_slice( $inquiries, 0, 200 );
+        }
+        update_option( 'lab_customer_inquiries', $inquiries );
 
         wp_send_json_success( array(
             'message' => __( 'Thanks for reaching out! Our team will get back to you shortly.', 'labeng' ),

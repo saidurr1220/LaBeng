@@ -402,12 +402,24 @@ function labeng_template_include( $template ) {
         if ( $custom ) return $custom;
     }
     
-    /* 4. Partner Page */
+    /* 4. Partner Page (business enquiries) */
     if ( is_page( 'partner' ) || is_page( 'partner-with-us' ) ) {
         $custom = lab_locate_template( 'public/partner.php' );
         if ( $custom ) return $custom;
     }
-    
+
+    /* 4b. Customer Contact Page (customer enquiries) */
+    if ( is_page( 'contact-us' ) || is_page( 'customer-contact' ) ) {
+        $custom = lab_locate_template( 'public/customer-contact.php' );
+        if ( $custom ) return $custom;
+    }
+
+    /* 4c. Find Businesses Near Me Page */
+    if ( is_page( 'find-near-me' ) || is_page( 'near-me' ) ) {
+        $custom = lab_locate_template( 'public/find-near-me.php' );
+        if ( $custom ) return $custom;
+    }
+
     /* 5. Business Dashboard */
     if ( is_page( 'business-dashboard' ) ) {
         $custom = lab_locate_template( 'business/dashboard-page.php' );
