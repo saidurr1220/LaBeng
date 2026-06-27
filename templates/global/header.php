@@ -64,15 +64,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
     <header class="<?php echo esc_attr( $header_class ); ?>">
         <div class="lab-global-header__inner">
             <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="lab-global-header__logo">
-                <?php
-                $lab_logo_id  = (int) get_option( 'lab_logo_id', 0 );
-                $lab_logo_url = $lab_logo_id ? wp_get_attachment_image_url( $lab_logo_id, 'medium' ) : '';
-                if ( $lab_logo_url ) :
-                ?>
-                    <img src="<?php echo esc_url( $lab_logo_url ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" class="lab-global-header__logo-img" />
-                <?php else : ?>
-                    <span class="blue-text">LA</span><span>BENG</span>
-                <?php endif; ?>
+                <span class="blue-text">LA</span><span>BENG</span>
             </a>
             
             <button class="lab-hamburger" id="lab-hamburger" aria-label="Toggle navigation" aria-expanded="false">
@@ -85,7 +77,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                 <div class="lab-nav-links">
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo trailingslashit( home_url( '/' ) ) === trailingslashit( $current_url ) ? 'active' : ''; ?>">Home</a>
                     <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="<?php echo strpos( $current_url, '/businesses/' ) !== false ? 'active' : ''; ?>">Discover</a>
-                    <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Hot Deals</a>
+                    <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Deals</a>
                     <a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>" class="<?php echo strpos( $current_url, '/contact-us/' ) !== false ? 'active' : ''; ?>">Contact</a>
                     <?php if ( is_user_logged_in() ) : ?>
                         <?php

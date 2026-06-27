@@ -14,7 +14,7 @@
     
     --lab-font-body: 'Inter', sans-serif;
     --lab-font-heading: 'Sora', sans-serif;
-    --lab-font-logo: 'Great Vibes', cursive;
+    --lab-font-logo: 'Sora', sans-serif;
 }
 
 body.labeng-dark-mode, html {
@@ -125,10 +125,10 @@ body.admin-bar .lab-global-header {
     display: inline-flex;
     align-items: center;
     font-family: var(--lab-font-heading);
-    font-size: 1.7rem;
+    font-size: 2rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
     color: #fff;
     text-decoration: none !important;
     line-height: 1.2;
