@@ -605,6 +605,15 @@ function labeng_admin_menu() {
 
     add_submenu_page(
         'labeng-dashboard',
+        __( 'Email / SMTP', 'labeng' ),
+        __( 'Email / SMTP', 'labeng' ),
+        'manage_options',
+        'labeng-smtp-settings',
+        'labeng_admin_smtp_settings_page'
+    );
+
+    add_submenu_page(
+        'labeng-dashboard',
         __( 'Email Logs', 'labeng' ),
         __( 'Email Logs', 'labeng' ),
         'manage_options',
@@ -617,8 +626,58 @@ function labeng_admin_payment_settings_page() {
     require_once LABENG_PATH . 'admin/payment-settings.php';
 }
 
+function labeng_admin_smtp_settings_page() {
+    require_once LABENG_PATH . 'admin/smtp-settings.php';
+}
+
 function labeng_admin_branding_page() {
     require_once LABENG_PATH . 'admin/branding-settings.php';
+}
+
+/* Always use the configured From address/name when SMTP is on */
+add_filter( 'wp_mail_from', function( $email ) {
+    if ( get_option( 'lab_smtp_enabled', '0' ) === '1' ) {
+        $from = get_option( 'lab_smtp_from', '' );
+        if ( $from ) return $from;
+    }
+    return $email;
+} );
+add_filter( 'wp_mail_from_name', function( $name ) {
+    if ( get_option( 'lab_smtp_enabled', '0' ) === '1' ) {
+        $fromname = get_option( 'lab_smtp_fromname', '' );
+        if ( $fromname ) return $fromname;
+    }
+    return $name;
+} );
+
+/* SMTP: configure PHPMailer when lab_smtp_enabled is on */
+add_action( 'phpmailer_init', 'labeng_configure_smtp' );
+function labeng_configure_smtp( $phpmailer ) {
+    if ( get_option( 'lab_smtp_enabled', '0' ) !== '1' ) {
+        return;
+    }
+    $host     = get_option( 'lab_smtp_host', '' );
+    $port     = (int) get_option( 'lab_smtp_port', 465 );
+    $enc      = get_option( 'lab_smtp_enc', 'ssl' );
+    $user     = get_option( 'lab_smtp_user', '' );
+    $pass     = get_option( 'lab_smtp_pass', '' );
+    $from     = get_option( 'lab_smtp_from', get_option( 'admin_email' ) );
+    $fromname = get_option( 'lab_smtp_fromname', get_bloginfo( 'name' ) );
+
+    if ( ! $host || ! $user || ! $pass ) {
+        return;
+    }
+
+    $phpmailer->isSMTP();
+    $phpmailer->Host       = $host;
+    $phpmailer->Port       = $port;
+    $phpmailer->SMTPAuth   = true;
+    $phpmailer->Username   = $user;
+    $phpmailer->Password   = $pass;
+    $phpmailer->SMTPSecure = $enc;
+    $phpmailer->From       = $from;
+    $phpmailer->FromName   = $fromname;
+    $phpmailer->CharSet    = 'UTF-8';
 }
 
 /* Output favicon from the uploaded branding (falls back to the logo). */

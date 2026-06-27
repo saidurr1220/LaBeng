@@ -1369,7 +1369,7 @@
         $(this).addClass('selected');
         
         if (val !== '') {
-            $(this).append('<svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1FCFE0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');
+            $(this).append('<svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18697F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');
         }
         
         $('#lab-area-dropdown-box').removeClass('open');
@@ -1504,7 +1504,7 @@
                     clientSecret: res.data.client_secret,
                     appearance: {
                         theme: 'night',
-                        variables: { colorPrimary: '#1FCFE0', borderRadius: '8px' }
+                        variables: { colorPrimary: '#18697F', borderRadius: '8px' }
                     }
                 });
                 var paymentElement = elements.create('payment', {

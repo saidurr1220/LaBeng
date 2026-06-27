@@ -86,7 +86,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo trailingslashit( home_url( '/' ) ) === trailingslashit( $current_url ) ? 'active' : ''; ?>">Home</a>
                     <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="<?php echo strpos( $current_url, '/businesses/' ) !== false ? 'active' : ''; ?>">Discover</a>
                     <a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>" class="<?php echo strpos( $current_url, '/deals/' ) !== false ? 'active' : ''; ?>">Hot Deals</a>
-                    <a href="<?php echo esc_url( home_url( '/partner/' ) ); ?>" class="<?php echo strpos( $current_url, '/partner/' ) !== false ? 'active' : ''; ?>">Contact</a>
+                    <a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>" class="<?php echo strpos( $current_url, '/contact-us/' ) !== false ? 'active' : ''; ?>">Contact</a>
                     <?php if ( is_user_logged_in() ) : ?>
                         <?php
                         $user = wp_get_current_user();
@@ -99,6 +99,11 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                 </div>
 
                 <div class="lab-nav-auth">
+                    <?php
+                    $is_biz_owner = is_user_logged_in() && in_array( 'business_owner', wp_get_current_user()->roles, true );
+                    if ( ! $is_biz_owner ) : ?>
+                    <a href="<?php echo esc_url( home_url( '/partner/' ) ); ?>" class="lab-global-header__btn lab-global-header__btn--biz">For Business</a>
+                    <?php endif; ?>
                     <?php if ( is_user_logged_in() ) : ?>
                         <a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="lab-global-header__btn lab-global-header__btn--logout">Log out</a>
                     <?php else : ?>

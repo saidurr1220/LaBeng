@@ -110,8 +110,8 @@ sort( $dropdown_areas );
                         $slug   = $term->slug;
                         $config = isset( $cat_design_map[$slug] ) ? $cat_design_map[$slug] : array(
                             'name'  => $term->name,
-                            'color' => '#1FCFE0',
-                            'bg'    => 'rgba(31, 207, 224, 0.12)',
+                            'color' => '#18697F',
+                            'bg'    => 'rgba(24, 105, 127, 0.12)',
                             'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
                         );
 
@@ -202,14 +202,14 @@ sort( $dropdown_areas );
                             <div class="lab-area-option <?php echo empty($postcode_query) ? 'selected' : ''; ?>" data-value="">
                                 <span>All areas</span>
                                 <?php if ( empty($postcode_query) ) : ?>
-                                    <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1FCFE0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18697F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                 <?php endif; ?>
                             </div>
                             <?php foreach ( $dropdown_areas as $area ) : ?>
                                 <div class="lab-area-option <?php echo $postcode_query === $area ? 'selected' : ''; ?>" data-value="<?php echo esc_attr($area); ?>">
                                     <span><?php echo esc_html($area); ?></span>
                                     <?php if ( $postcode_query === $area ) : ?>
-                                        <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1FCFE0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18697F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>

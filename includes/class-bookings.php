@@ -383,8 +383,9 @@ class Lab_Bookings {
 
         $response = wp_remote_post( 'https://api.stripe.com/v1/payment_intents', array(
             'headers' => array(
-                'Authorization' => 'Bearer ' . $stripe_secret,
-                'Content-Type'  => 'application/x-www-form-urlencoded',
+                'Authorization'  => 'Bearer ' . $stripe_secret,
+                'Content-Type'   => 'application/x-www-form-urlencoded',
+                'Stripe-Version' => '2026-06-24.dahlia',
             ),
             'body' => array(
                 'amount'                        => (string) intval( $amount * 100 ),
@@ -424,7 +425,10 @@ class Lab_Bookings {
         }
 
         $response = wp_remote_get( 'https://api.stripe.com/v1/payment_intents/' . urlencode( $intent_id ), array(
-            'headers' => array( 'Authorization' => 'Bearer ' . $stripe_secret ),
+            'headers' => array(
+                'Authorization'  => 'Bearer ' . $stripe_secret,
+                'Stripe-Version' => '2026-06-24.dahlia',
+            ),
             'timeout' => 15,
         ) );
 
