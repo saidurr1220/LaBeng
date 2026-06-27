@@ -1029,6 +1029,7 @@ function labeng_admin_settings_page() {
         update_option( 'lab_social_twitter', sanitize_text_field( $_POST['lab_social_twitter'] ) );
         update_option( 'lab_social_instagram', sanitize_text_field( $_POST['lab_social_instagram'] ) );
         update_option( 'lab_social_linkedin', sanitize_text_field( $_POST['lab_social_linkedin'] ) );
+        update_option( 'lab_social_tiktok', sanitize_text_field( $_POST['lab_social_tiktok'] ?? '' ) );
         update_option( 'lab_default_commission_type', sanitize_text_field( $_POST['lab_default_commission_type'] ?? 'percentage' ) );
         update_option( 'lab_default_commission_value', floatval( $_POST['lab_default_commission_value'] ?? 10 ) );
         echo '<div class="notice notice-success"><p>' . esc_html__( 'Settings saved.', 'labeng' ) . '</p></div>';
@@ -1039,6 +1040,7 @@ function labeng_admin_settings_page() {
     $twitter         = get_option( 'lab_social_twitter', '' );
     $instagram       = get_option( 'lab_social_instagram', '' );
     $linkedin        = get_option( 'lab_social_linkedin', '' );
+    $tiktok          = get_option( 'lab_social_tiktok', '' );
     $def_comm_type   = get_option( 'lab_default_commission_type', 'percentage' );
     $def_comm_value  = get_option( 'lab_default_commission_value', 10 );
     ?>
@@ -1096,6 +1098,10 @@ function labeng_admin_settings_page() {
                 <tr>
                     <th scope="row"><label for="lab_social_linkedin"><?php esc_html_e( 'LinkedIn URL', 'labeng' ); ?></label></th>
                     <td><input type="url" id="lab_social_linkedin" name="lab_social_linkedin" value="<?php echo esc_attr( $linkedin ); ?>" class="regular-text" placeholder="https://linkedin.com/in/..." /></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="lab_social_tiktok"><?php esc_html_e( 'TikTok URL', 'labeng' ); ?></label></th>
+                    <td><input type="url" id="lab_social_tiktok" name="lab_social_tiktok" value="<?php echo esc_attr( $tiktok ); ?>" class="regular-text" placeholder="https://tiktok.com/@..." /></td>
                 </tr>
             </table>
             <?php submit_button( __( 'Save Settings', 'labeng' ) ); ?>
