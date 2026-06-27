@@ -457,8 +457,8 @@ body.admin-bar .lab-global-header {
 /* Home Page */
 .lab-hero {
     text-align: center;
-    padding-top: 10rem;
-    padding-bottom: 4rem;
+    padding-top: 7rem;
+    padding-bottom: 1rem;
     background: var(--lab-bg-main);
     display: flex;
     flex-direction: column;
@@ -467,7 +467,7 @@ body.admin-bar .lab-global-header {
 .lab-hero__content {
     position: relative;
     z-index: 10;
-    padding: 1.5rem 2rem 0.5rem;
+    padding: 1rem 2rem 0;
     max-width: 860px;
     width: 100%;
     margin: 0 auto 0;
@@ -3796,8 +3796,8 @@ body.admin-bar .lab-global-header {
 
 /* Discover CTA on Homepage */
 .lab-hero__cta-wrap {
-    margin-top: 0.5rem;
-    margin-bottom: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
 }
 .lab-btn--discover {
     border-radius: 12px !important;
@@ -4608,25 +4608,22 @@ body.admin-bar .lab-global-header {
     }
 }
 
-/* ==========================================================================
-   Hero Layout & Spacing Overrides
-   ========================================================================== */
 .lab-hero__title {
     font-family: var(--lab-font-heading);
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     font-weight: 800;
     color: #ffffff;
-    max-width: 700px;
-    margin: 0 auto 1.5rem;
+    max-width: 800px;
+    margin: 0 auto 0.75rem;
     line-height: 1.15;
     text-align: center;
 }
 .lab-hero__subtitle {
     font-family: var(--lab-font-body);
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: 1.25rem;
+    font-weight: 400;
     color: var(--lab-text-muted);
-    margin: 0 auto 2.5rem;
+    margin: 0 auto 1.5rem;
     text-align: center;
 }
 .lab-btn--discover {
@@ -4640,18 +4637,18 @@ body.admin-bar .lab-global-header {
     color: var(--lab-primary-hover) !important;
 }
 .lab-hero__carousel-wrap {
-    margin-top: 2rem !important;
+    margin-top: 1rem !important;
 }
 @media (max-width: 768px) {
     .lab-hero__title {
-        font-size: 2.5rem !important;
+        font-size: 2.2rem !important;
         line-height: 1.2 !important;
-        margin-bottom: 1rem !important;
+        margin-bottom: 0.75rem !important;
         padding: 0 1rem;
     }
     .lab-hero__subtitle {
-        font-size: 1.1rem !important;
-        margin-bottom: 2rem !important;
+        font-size: 1rem !important;
+        margin-bottom: 1.25rem !important;
         padding: 0 1rem;
     }
 }
