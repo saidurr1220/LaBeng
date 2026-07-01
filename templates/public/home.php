@@ -95,7 +95,8 @@ if ( count( $carousel_items ) < 5 ) {
     <div class="lab-hero__cta-wrap">
         <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary lab-btn--discover">Discover Businesses</a>
         <a href="<?php echo esc_url( home_url( '/find-near-me/' ) ); ?>" class="lab-hero__nearby-link">
-            📍 Find Businesses Near Me
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Find Businesses Near Me
         </a>
     </div>
 

@@ -67,7 +67,7 @@ if ( $has_query ) {
         <form method="GET" action="<?php echo esc_url( home_url( '/find-near-me/' ) ); ?>" class="lab-near-search-form">
             <div class="lab-near-search-input-wrap">
                 <svg class="lab-near-pin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <input type="text" name="postcode" value="<?php echo esc_attr( $postcode_query ); ?>" placeholder="Enter your postcode (e.g. NQ 4AB)" autocomplete="postal-code" required />
+                <input type="text" name="postcode" value="<?php echo esc_attr( $postcode_query ); ?>" placeholder="Enter your postcode or area to discover businesses near you." autocomplete="postal-code" required />
             </div>
             <button type="submit" class="lab-btn lab-btn--primary">Search</button>
         </form>

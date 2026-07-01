@@ -932,6 +932,10 @@ body.admin-bar .lab-global-header {
     font-size: 1.25rem;
     color: var(--lab-text-muted);
 }
+.lab-single-hero__location svg {
+    color: var(--lab-primary);
+    flex-shrink: 0;
+}
 
 .lab-single-body {
     background: #1a1a1a;
@@ -1011,7 +1015,7 @@ body.admin-bar .lab-global-header {
 .lab-stars--sm { font-size: 0.85rem; }
 .lab-star--empty { color: #444; }
 .lab-star--full,
-.lab-star--half { color: #ffc107; }
+.lab-star--half { color: #18697F; }
 
 .lab-star-picker {
     display: flex;
@@ -1026,7 +1030,7 @@ body.admin-bar .lab-global-header {
     transition: color 0.15s ease, transform 0.1s ease;
 }
 .lab-star-pick:hover { transform: scale(1.1); }
-.lab-star-pick.active { color: #ffc107; }
+.lab-star-pick.active { color: #18697F; }
 
 .lab-reviews-list {
     display: flex;

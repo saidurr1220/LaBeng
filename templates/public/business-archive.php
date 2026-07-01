@@ -12,6 +12,24 @@ $is_search_active = ! empty( $search_query ) || ! empty( $postcode_query ) || ! 
 
 // Helper category design mapping (colors & icons)
 $cat_design_map = array(
+    'car-rental'     => array(
+        'name'  => 'Transportation',
+        'color' => '#18697F',
+        'bg'    => 'rgba(24, 105, 127, 0.12)',
+        'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+    ),
+    'car-rentals'    => array(
+        'name'  => 'Transportation',
+        'color' => '#18697F',
+        'bg'    => 'rgba(24, 105, 127, 0.12)',
+        'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+    ),
+    'transportation' => array(
+        'name'  => 'Transportation',
+        'color' => '#18697F',
+        'bg'    => 'rgba(24, 105, 127, 0.12)',
+        'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+    ),
     'food-drink' => array(
         'name'  => 'Food & Drink',
         'color' => '#eab308',
@@ -99,7 +117,7 @@ sort( $dropdown_areas );
                     'accommodation'  => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
                     'food-drink'     => 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80',
                     'fitness'        => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=600&q=80',
-                    'beauty'         => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+                    'beauty'         => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
                     'hospitality'    => 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=600&q=80',
                     'technology'     => 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
                     'services'       => 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80',
