@@ -2138,8 +2138,8 @@ body.admin-bar .lab-global-header {
     margin-bottom: 10px;
 }
 .lab-explore-subtitle {
-    font-size: 1.2rem;
-    color: #888;
+    font-size: 1.5rem;
+    color: var(--lab-text-muted);
 }
 .lab-deal-highlight {
     position: relative;
@@ -2217,7 +2217,7 @@ body.admin-bar .lab-global-header {
 }
 .lab-deal-card__body h3 {
     margin: 0 0 10px 0;
-    font-size: 1.2rem;
+    font-size: 1.35rem;
 }
 .lab-deal-card__desc {
     color: #aaa;
@@ -4613,9 +4613,9 @@ body.admin-bar .lab-global-header {
     font-size: 3.5rem;
     font-weight: 800;
     color: #ffffff;
-    max-width: 800px;
+    max-width: 580px;
     margin: 0 auto 0.75rem;
-    line-height: 1.15;
+    line-height: 1.2;
     text-align: center;
 }
 .lab-hero__subtitle {
@@ -4624,6 +4624,7 @@ body.admin-bar .lab-global-header {
     font-weight: 400;
     color: var(--lab-text-muted);
     margin: 0 auto 1.5rem;
+    max-width: 420px;
     text-align: center;
 }
 .lab-btn--discover {

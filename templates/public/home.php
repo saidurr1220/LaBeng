@@ -88,12 +88,15 @@ if ( count( $carousel_items ) < 5 ) {
 
 <div class="lab-hero">
     <div class="lab-hero__content">
-        <h1 class="lab-hero__title">Discover and Elevate<br>Exciting Businesses</h1>
-        <p class="lab-hero__subtitle">Food, services, fitness and more</p>
+        <h1 class="lab-hero__title">Discover and<br>Elevate Exciting<br>Businesses</h1>
+        <p class="lab-hero__subtitle">Food, services, fitness and more.</p>
     </div>
 
     <div class="lab-hero__cta-wrap">
         <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-btn lab-btn--primary lab-btn--discover">Discover Businesses</a>
+        <a href="<?php echo esc_url( home_url( '/find-near-me/' ) ); ?>" class="lab-hero__nearby-link">
+            📍 Find Businesses Near Me
+        </a>
     </div>
 
     <div class="lab-hero__carousel-wrap">
