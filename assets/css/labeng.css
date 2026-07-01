@@ -338,6 +338,15 @@ body.admin-bar .lab-global-header {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
+    align-items: end;
+}
+.lab-form-row--2col .lab-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+.lab-form-row--2col .lab-field > label {
+    min-height: 1.4rem;
 }
 
 /* Hamburger Button (hidden on desktop) */

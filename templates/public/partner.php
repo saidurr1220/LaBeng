@@ -10,7 +10,7 @@ labeng_get_header();
     <div class="lab-partner-split">
 
         <div class="lab-partner-left">
-            <h1 class="lab-partner-title">Partner with <span class="lab-script">LaBeng</span></h1>
+            <h1 class="lab-partner-title">Partner with <span class="blue-text">LA</span>BENG</h1>
             <p class="lab-partner-subtitle">Want to get your business in front of more customers? Let's work together.</p>
 
             <ul class="lab-partner-benefits">
@@ -63,7 +63,7 @@ labeng_get_header();
                                 <option value="">Select a category</option>
                                 <?php if ( ! is_wp_error( $partner_categories ) && ! empty( $partner_categories ) ) : ?>
                                     <?php foreach ( $partner_categories as $cat ) : ?>
-                                        <option value="<?php echo esc_attr( $cat->slug ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+                                        <option value="<?php echo esc_attr( $cat->slug ); ?>"><?php echo esc_html( ucwords( $cat->name ) ); ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
