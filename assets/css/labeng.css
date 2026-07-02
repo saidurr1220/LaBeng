@@ -131,20 +131,22 @@ body.admin-bar .lab-global-header {
     letter-spacing: 0.04em;
     color: #fff;
     text-decoration: none !important;
-    line-height: 1.2;
+    line-height: 1;
     transition: color 0.3s ease;
 }
 .blue-text {
     color: #18697F !important;
 }
-/* Uploaded navbar logo/monogram image (#1) */
+/* Uploaded navbar logo/monogram image */
 .lab-global-header__logo-img {
-    height: 90px;
+    height: 36px;
     width: auto;
     display: block;
+    object-fit: contain;
+    object-position: left center;
 }
 @media (max-width: 768px) {
-    .lab-global-header__logo-img { height: 68px; }
+    .lab-global-header__logo-img { height: 28px; }
 }
 .lab-global-header__logo:hover {
     color: #fff;
