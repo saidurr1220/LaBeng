@@ -1282,13 +1282,13 @@ body.admin-bar .lab-global-header {
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1.1;
-    font-size: 3.75rem;
-    margin-bottom: 1rem;
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
 }
 .lab-partner-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     color: #ddd;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 .lab-partner-benefits {
     list-style: none;
@@ -2203,56 +2203,85 @@ body.admin-bar .lab-global-header {
     gap: 30px;
     margin-bottom: 50px;
 }
+/* Deal cards — styled to match featured highlight card */
 .lab-deal-card {
-    background: var(--lab-bg-card);
-    border-radius: 24px;
+    position: relative;
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--lab-border);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    height: 340px;
+    display: flex;
+    align-items: flex-end;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255,255,255,0.07);
 }
 .lab-deal-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
 }
 .lab-deal-card__image {
+    position: absolute;
+    top: 0; left: 0;
     width: 100%;
-    height: 220px;
+    height: 100%;
+    z-index: 1;
 }
 .lab-deal-card__image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+}
+/* dark gradient overlay — same as highlight card */
+.lab-deal-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, transparent 100%);
+    z-index: 2;
 }
 .lab-deal-card__body {
-    padding: 20px;
+    position: relative;
+    z-index: 3;
+    padding: 20px 24px 22px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 .lab-deal-card__body h3 {
-    margin: 0 0 10px 0;
-    font-size: 1.35rem;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
 }
 .lab-deal-card__desc {
-    color: #aaa;
-    font-size: 0.95rem;
-    margin-bottom: 15px;
-    min-height: 40px;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    margin: 0;
 }
 .lab-deal-card__prices {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-top: 4px;
 }
 .new-price {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--lab-primary);
 }
 .old-price {
-    font-size: 1rem;
-    color: #666;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.5);
     text-decoration: line-through;
+}
+.lab-deal-card .lab-btn--full {
+    margin-top: 8px;
+    width: 100%;
+    text-align: center;
+    border-radius: 10px !important;
 }
 .lab-deals-more {
     text-align: center;
@@ -4585,13 +4614,13 @@ body.admin-bar .lab-global-header {
     align-items: center;
     gap: 0.4rem;
     margin-top: 1rem;
-    color: var(--lab-text-muted);
+    color: #ffffff;
     font-weight: 600;
     font-size: 0.95rem;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, opacity 0.2s ease;
 }
-.lab-hero__nearby-link:hover { color: var(--lab-primary); }
+.lab-hero__nearby-link:hover { color: #ffffff; opacity: 0.75; }
 .lab-hero__cta-wrap { display: flex; flex-direction: column; align-items: center; }
 
 /* Carousel coverflow — mobile shows active card only (#4 / #14) */
@@ -4645,10 +4674,11 @@ body.admin-bar .lab-global-header {
 }
 .lab-hero__nearby-link {
     margin-top: 1.25rem !important;
-    color: var(--lab-primary) !important;
+    color: #ffffff !important;
 }
 .lab-hero__nearby-link:hover {
-    color: var(--lab-primary-hover) !important;
+    color: #ffffff !important;
+    opacity: 0.75;
 }
 .lab-hero__carousel-wrap {
     margin-top: 1rem !important;

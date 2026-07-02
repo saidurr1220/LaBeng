@@ -124,6 +124,7 @@ sort( $dropdown_areas );
                 );
 
                 if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
+                    $rendered_names = array(); // Track rendered display names to avoid duplicates
                     foreach ( $categories as $term ) {
                         $slug   = $term->slug;
                         $config = isset( $cat_design_map[$slug] ) ? $cat_design_map[$slug] : array(
@@ -132,6 +133,13 @@ sort( $dropdown_areas );
                             'bg'    => 'rgba(24, 105, 127, 0.12)',
                             'svg'   => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
                         );
+
+                        // Skip duplicate display names (e.g. car-rental, car-rentals, transportation all → "Transportation")
+                        $display_name = $config['name'];
+                        if ( in_array( $display_name, $rendered_names, true ) ) {
+                            continue;
+                        }
+                        $rendered_names[] = $display_name;
 
                         // Admin-uploaded image (term meta) → stock fallback by slug → icon.
                         $img_id  = get_term_meta( $term->term_id, 'lab_cat_image_id', true );
@@ -161,6 +169,7 @@ sort( $dropdown_areas );
                         <?php
                     }
                 }
+
                 ?>
             </div>
         </div>
