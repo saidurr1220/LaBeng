@@ -2166,6 +2166,13 @@ body.admin-bar .lab-global-header {
     display: flex;
     align-items: center;
     padding: 40px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+.lab-deal-highlight:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
 }
 .lab-deal-highlight__bg {
     position: absolute;
