@@ -79,7 +79,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
                          alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
                          class="lab-global-header__logo-img" />
                 <?php else : ?>
-                    <span class="blue-text">LA</span><span>BENG</span>
+                    <span>La</span><span class="blue-text">Beng</span>
                 <?php endif; ?>
             </a>
             

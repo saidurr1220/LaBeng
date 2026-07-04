@@ -10,7 +10,7 @@ labeng_get_header();
     <div class="lab-partner-split">
 
         <div class="lab-partner-left">
-            <h1 class="lab-partner-title">Partner with <span class="blue-text">LA</span>BENG</h1>
+            <h1 class="lab-partner-title">Partner with <span class="lab-script">LaBeng</span></h1>
             <p class="lab-partner-subtitle">Want to get your business in front of more customers? Let's work together.</p>
 
             <ul class="lab-partner-benefits">

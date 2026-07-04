@@ -57,7 +57,7 @@ labeng_get_header();
                                     <span class="old-price"><?php echo esc_html( $cs . $old ); ?></span>
                                 <?php endif; ?>
                             </div>
-                            <span class="lab-btn lab-btn--primary lab-btn--full">Get Deal</span>
+                            <span class="lab-btn lab-btn--primary">Get Deal</span>
                         </div>
                     </div>
                 </a>
