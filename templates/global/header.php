@@ -64,7 +64,7 @@ if ( ! is_front_page() && ! is_page( 'labeng-home' ) ) {
     <header class="<?php echo esc_attr( $header_class ); ?>">
         <div class="lab-global-header__inner">
             <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="lab-global-header__logo">
-                    <span>La</span><span class="blue-text">Beng</span>
+                    <span class="blue-text">LA</span><span>BENG</span>
             </a>
             
             <button class="lab-hamburger" id="lab-hamburger" aria-label="Toggle navigation" aria-expanded="false">

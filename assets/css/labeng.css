@@ -14,7 +14,7 @@
     
     --lab-font-body: 'Inter', sans-serif;
     --lab-font-heading: 'Sora', sans-serif;
-    --lab-font-logo: 'Great Vibes', cursive;
+    --lab-font-logo: 'Sora', sans-serif;
 }
 
 body.labeng-dark-mode, html {
@@ -124,14 +124,14 @@ body.admin-bar .lab-global-header {
 .lab-global-header__logo {
     display: inline-flex;
     align-items: center;
-    font-family: var(--lab-font-logo);
-    font-size: 2.2rem;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0;
+    font-family: var(--lab-font-heading);
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: #fff;
     text-decoration: none !important;
-    line-height: 1.2;
+    line-height: 1;
     transition: color 0.3s ease;
 }
 .blue-text {
@@ -396,11 +396,15 @@ body.admin-bar .lab-global-header {
         justify-content: space-between;
     }
     .lab-global-header__logo {
-        display: block;
-        font-family: var(--lab-font-logo);
-        font-size: 2.2rem;
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--lab-font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
         color: #fff;
-        line-height: 1.4;
+        line-height: 1;
         opacity: 1;
         transform: none;
         pointer-events: auto;
