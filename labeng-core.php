@@ -3,7 +3,7 @@
  * Plugin Name: Labeng Core
  * Plugin URI:  https://labeng.com
  * Description: 3-sided SaaS marketplace — Customers discover & book, Business Owners self-manage listings, Admin manages the platform.
- * Version:     1.3.5
+ * Version:     1.3.6
  * Author:      Md. Saidur Rahman
  * Author URI:  https://saidur-it.vercel.app
  * Text Domain: labeng
@@ -14,7 +14,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* ── Constants ─────────────────────────────────────────────── */
-define( 'LABENG_VERSION', '1.3.5' );
+define( 'LABENG_VERSION', '1.3.6' );
 define( 'LABENG_PATH',    plugin_dir_path( __FILE__ ) );
 define( 'LABENG_URL',     plugin_dir_url( __FILE__ ) );
 define( 'LABENG_BASENAME', plugin_basename( __FILE__ ) );

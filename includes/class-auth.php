@@ -8,6 +8,21 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Lab_Auth {
 
     public static function init() {
+        /* Suppress WordPress's default new-user notification emails during our
+           registration AJAX handlers. wp_create_user() fires the user_register
+           hook which calls wp_send_new_user_notifications() → wp_mail(). On
+           shared hosting without SMTP configured, that wp_mail() blocks the
+           entire PHP process until the mail server times out (30–120 s), so
+           the browser never receives a JSON response and the button stays
+           stuck on "Creating account...". Priority 0 ensures this runs before
+           our actual handler at the default priority 10. */
+        add_action( 'wp_ajax_nopriv_lab_register_customer', array( __CLASS__, 'suppress_wp_user_emails' ), 0 );
+        add_action( 'wp_ajax_nopriv_lab_register_business', array( __CLASS__, 'suppress_wp_user_emails' ), 0 );
+
+        /* WP-Cron hook: send the business-pending admin email off the request
+           cycle so the AJAX response returns immediately. */
+        add_action( 'lab_email_new_business_pending', array( 'Lab_Email', 'lab_email_business_pending_admin' ), 10, 4 );
+
         /* AJAX: customer registration */
         add_action( 'wp_ajax_nopriv_lab_register_customer', array( __CLASS__, 'ajax_register_customer' ) );
 
@@ -59,6 +74,14 @@ class Lab_Auth {
                 exit;
             }
         }
+    }
+
+    /**
+     * Remove WP's blocking new-user notification hook so wp_create_user()
+     * doesn't trigger a synchronous wp_mail() call on our AJAX requests.
+     */
+    public static function suppress_wp_user_emails() {
+        remove_action( 'user_register', 'wp_send_new_user_notifications' );
     }
 
     /* ──────────────────────────────────────────────────────────
@@ -389,8 +412,9 @@ class Lab_Auth {
             wp_set_object_terms( $post_id, $category, 'lab_category' );
         }
 
-        /* Email admin about new registration */
-        Lab_Email::lab_email_business_pending_admin( $post_id, $biz_name, $owner_name, $email );
+        /* Schedule admin notification via WP-Cron so it doesn't block the
+           AJAX response. The email fires on the next page load. */
+        wp_schedule_single_event( time(), 'lab_email_new_business_pending', array( $post_id, $biz_name, $owner_name, $email ) );
 
         wp_send_json_success( array(
             'message' => __( 'Your application has been submitted and is under review. We will email you once approved.', 'labeng' ),

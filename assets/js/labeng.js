@@ -549,23 +549,33 @@
         var $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Creating account...');
 
-        $.post(ajaxurl, {
-            action: 'lab_register_customer',
-            nonce: nonce,
-            first_name: $('#lab-reg-fname').val(),
-            last_name: $('#lab-reg-lname').val(),
-            email: $('#lab-reg-email').val(),
-            password: $('#lab-reg-pass').val(),
-            password_confirm: $('#lab-reg-pass2').val()
-        }, function(res) {
-            $btn.prop('disabled', false).text('Create Account');
-            if (res.success) {
-                showMsg('#lab-register-msg', res.data.message, 'success');
-                if (res.data.redirect) {
-                    setTimeout(function() { window.location.href = res.data.redirect; }, 1000);
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            timeout: 30000,
+            data: {
+                action: 'lab_register_customer',
+                nonce: nonce,
+                first_name: $('#lab-reg-fname').val(),
+                last_name: $('#lab-reg-lname').val(),
+                email: $('#lab-reg-email').val(),
+                password: $('#lab-reg-pass').val(),
+                password_confirm: $('#lab-reg-pass2').val()
+            },
+            success: function(res) {
+                $btn.prop('disabled', false).text('Create Account');
+                if (res.success) {
+                    showMsg('#lab-register-msg', res.data.message, 'success');
+                    if (res.data.redirect) {
+                        setTimeout(function() { window.location.href = res.data.redirect; }, 1000);
+                    }
+                } else {
+                    showMsg('#lab-register-msg', res.data.message, 'error');
                 }
-            } else {
-                showMsg('#lab-register-msg', res.data.message, 'error');
+            },
+            error: function() {
+                $btn.prop('disabled', false).text('Create Account');
+                showMsg('#lab-register-msg', 'Something went wrong. Please try again.', 'error');
             }
         });
     });
@@ -600,26 +610,36 @@
         var $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Submitting...');
 
-        $.post(ajaxurl, {
-            action: 'lab_register_business',
-            nonce: nonce,
-            business_name: $('#lab-biz-name').val(),
-            owner_name: $('#lab-biz-owner').val(),
-            email: $('#lab-biz-email').val(),
-            phone: $('#lab-biz-phone').val(),
-            password: $('#lab-biz-pass').val(),
-            password_confirm: $('#lab-biz-pass2').val(),
-            city: $('#lab-biz-city').val(),
-            postcode: $('#lab-biz-postcode').val(),
-            category: $('#lab-biz-category').val(),
-            description: $('#lab-biz-desc').val()
-        }, function(res) {
-            $btn.prop('disabled', false).text('Submit Application');
-            if (res.success) {
-                showMsg('#lab-biz-register-msg', res.data.message, 'success');
-                $('#lab-biz-register-form')[0].reset();
-            } else {
-                showMsg('#lab-biz-register-msg', res.data.message, 'error');
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            timeout: 30000,
+            data: {
+                action: 'lab_register_business',
+                nonce: nonce,
+                business_name: $('#lab-biz-name').val(),
+                owner_name: $('#lab-biz-owner').val(),
+                email: $('#lab-biz-email').val(),
+                phone: $('#lab-biz-phone').val(),
+                password: $('#lab-biz-pass').val(),
+                password_confirm: $('#lab-biz-pass2').val(),
+                city: $('#lab-biz-city').val(),
+                postcode: $('#lab-biz-postcode').val(),
+                category: $('#lab-biz-category').val(),
+                description: $('#lab-biz-desc').val()
+            },
+            success: function(res) {
+                $btn.prop('disabled', false).text('Submit Application');
+                if (res.success) {
+                    showMsg('#lab-biz-register-msg', res.data.message, 'success');
+                    $('#lab-biz-register-form')[0].reset();
+                } else {
+                    showMsg('#lab-biz-register-msg', res.data.message, 'error');
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false).text('Submit Application');
+                showMsg('#lab-biz-register-msg', 'Something went wrong. Please try again.', 'error');
             }
         });
     });
