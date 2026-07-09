@@ -13,6 +13,8 @@ labeng_get_header();
             <h1 class="lab-partner-title">Partner with <span class="blue-text">LA</span>BENG</h1>
             <p class="lab-partner-subtitle">Want to get your business in front of more customers? Let's work together.</p>
 
+            <a href="<?php echo esc_url( home_url( '/business-register/' ) ); ?>" class="lab-btn lab-btn--primary lab-partner-register-btn">List Your Business &rarr;</a>
+
             <ul class="lab-partner-benefits">
                 <li>
                     <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

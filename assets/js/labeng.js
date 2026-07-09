@@ -543,12 +543,35 @@
 
     /* ── Auth Forms ────────────────────────────────────────────── */
 
+    /* Fetch a fresh nonce, then run cb(). The localized `nonce` can be stale
+       if the page was served from full-page cache (LiteSpeed), which makes
+       every auth submit fail server-side with 403. Refreshing right before we
+       submit guarantees a valid token. Falls back to the existing nonce if the
+       refresh request itself fails, so we never make things worse. */
+    function labWithFreshNonce(cb) {
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            cache: false,
+            timeout: 15000,
+            data: { action: 'lab_refresh_nonce' },
+            success: function(res) {
+                if (res && res.success && res.data && res.data.nonce) {
+                    nonce = res.data.nonce;
+                }
+                cb();
+            },
+            error: function() { cb(); }
+        });
+    }
+
     /* Customer Registration */
     $(document).on('submit', '#lab-register-form', function(e) {
         e.preventDefault();
         var $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Creating account...');
 
+        labWithFreshNonce(function() {
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -578,6 +601,7 @@
                 showMsg('#lab-register-msg', 'Something went wrong. Please try again.', 'error');
             }
         });
+        });
     });
 
     /* Login */
@@ -586,21 +610,33 @@
         var $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Logging in...');
 
-        $.post(ajaxurl, {
-            action: 'lab_login',
-            nonce: nonce,
-            email: $('#lab-login-email').val(),
-            password: $('#lab-login-pass').val()
-        }, function(res) {
-            $btn.prop('disabled', false).text('Login');
-            if (res.success) {
-                showMsg('#lab-login-msg', res.data.message, 'success');
-                if (res.data.redirect) {
-                    setTimeout(function() { window.location.href = res.data.redirect; }, 1000);
+        labWithFreshNonce(function() {
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            timeout: 30000,
+            data: {
+                action: 'lab_login',
+                nonce: nonce,
+                email: $('#lab-login-email').val(),
+                password: $('#lab-login-pass').val()
+            },
+            success: function(res) {
+                $btn.prop('disabled', false).text('Login');
+                if (res.success) {
+                    showMsg('#lab-login-msg', res.data.message, 'success');
+                    if (res.data.redirect) {
+                        setTimeout(function() { window.location.href = res.data.redirect; }, 1000);
+                    }
+                } else {
+                    showMsg('#lab-login-msg', res.data.message, 'error');
                 }
-            } else {
-                showMsg('#lab-login-msg', res.data.message, 'error');
+            },
+            error: function() {
+                $btn.prop('disabled', false).text('Login');
+                showMsg('#lab-login-msg', 'Something went wrong. Please try again.', 'error');
             }
+        });
         });
     });
 
@@ -610,6 +646,7 @@
         var $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Submitting...');
 
+        labWithFreshNonce(function() {
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -641,6 +678,7 @@
                 $btn.prop('disabled', false).text('Submit Application');
                 showMsg('#lab-biz-register-msg', 'Something went wrong. Please try again.', 'error');
             }
+        });
         });
     });
 

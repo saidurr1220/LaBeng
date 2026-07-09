@@ -13,8 +13,13 @@ labeng_get_header();
 
 <div class="lab-auth-page">
     <div class="lab-auth-container <?php echo $is_business ? 'lab-auth-container--wide' : ''; ?>">
-        <h1 class="lab-auth-title"><?php echo $is_business ? 'Join LaBeng' : 'Get Started'; ?></h1>
-        
+        <h1 class="lab-auth-title"><?php echo $is_business ? 'List Your Business' : 'Get Started'; ?></h1>
+        <p class="lab-auth-subhead">
+            <?php echo $is_business
+                ? 'Register your business to get listed on LaBeng and reach more customers.'
+                : 'Create your customer account to discover and book local businesses.'; ?>
+        </p>
+
         <div class="lab-auth-card">
             <?php if ( $is_business ) : 
                 $categories = get_terms( array( 'taxonomy' => 'lab_category', 'hide_empty' => false ) );
@@ -111,6 +116,13 @@ labeng_get_header();
             
             <p class="lab-auth-footer">
                 Already have an account? <a href="<?php echo esc_url( home_url( '/login/' ) ); ?>">Log in</a>
+            </p>
+            <p class="lab-auth-alt">
+                <?php if ( $is_business ) : ?>
+                    Just looking to book services? <a href="<?php echo esc_url( home_url( '/register/' ) ); ?>">Create a customer account</a>
+                <?php else : ?>
+                    Are you a business owner? <a href="<?php echo esc_url( home_url( '/business-register/' ) ); ?>">List your business</a>
+                <?php endif; ?>
             </p>
         </div>
     </div>

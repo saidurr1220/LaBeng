@@ -734,6 +734,92 @@ body.admin-bar .lab-global-header {
     color: #fff;
     text-decoration: underline;
 }
+.lab-auth-footer a:hover {
+    color: var(--lab-primary-hover);
+}
+
+/* ── Auth form polish (design refinements, scoped to auth card) ── */
+.lab-auth-card .lab-field {
+    margin-bottom: 1.25rem;
+}
+.lab-auth-card .lab-field label {
+    font-weight: 600;
+    color: #cfd4d6;
+    letter-spacing: 0.01em;
+}
+.lab-auth-card .lab-field input,
+.lab-auth-card .lab-field select,
+.lab-auth-card .lab-field textarea {
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.lab-auth-card .lab-field input::placeholder,
+.lab-auth-card .lab-field textarea::placeholder {
+    color: #6b6f72;
+}
+.lab-auth-card .lab-field input:focus,
+.lab-auth-card .lab-field select:focus,
+.lab-auth-card .lab-field textarea:focus {
+    background-color: #191919 !important;
+    box-shadow: 0 0 0 3px rgba(24, 105, 127, 0.28);
+}
+.lab-auth-card .lab-btn--full {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    font-size: 1.05rem;
+    border-radius: 10px;
+    letter-spacing: 0.01em;
+}
+/* Small helper line under the title differentiating the two flows */
+.lab-auth-subhead {
+    text-align: center;
+    color: #8a8f92;
+    margin: -1.25rem 0 2rem;
+    font-size: 0.98rem;
+}
+.lab-auth-alt {
+    margin-top: 0.75rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.95rem;
+}
+.lab-auth-alt a {
+    color: var(--lab-primary-hover);
+    text-decoration: none;
+    font-weight: 600;
+}
+.lab-auth-alt a:hover {
+    text-decoration: underline;
+}
+
+/* Auth form responsiveness — stack 2-col rows with proper spacing.
+   Higher specificity than the generic .lab-form-row--2col{gap:0} mobile rule,
+   so the auth forms never end up with touching fields. */
+@media (max-width: 640px) {
+    .lab-auth-page {
+        padding: 7rem 1.25rem 2.5rem;
+        min-height: auto;
+    }
+    .lab-auth-title {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .lab-auth-card {
+        padding: 1.75rem 1.4rem;
+        border-radius: 18px;
+    }
+    .lab-auth-card .lab-form-row--2col {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .lab-auth-card .lab-form-row--2col .lab-field {
+        margin-bottom: 1.25rem;
+    }
+    .lab-auth-card .lab-form-row--2col .lab-field > label {
+        min-height: 0;
+    }
+}
 
 /* Explore Page */
 .lab-explore-container {
@@ -1296,6 +1382,15 @@ body.admin-bar .lab-global-header {
     font-size: 1.1rem;
     color: #ddd;
     margin-bottom: 2rem;
+}
+.lab-partner-register-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 2.5rem;
+    padding: 0.85rem 1.6rem;
+    font-size: 1.02rem;
+    border-radius: 10px;
 }
 .lab-partner-benefits {
     list-style: none;

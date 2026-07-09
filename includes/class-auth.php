@@ -43,6 +43,15 @@ class Lab_Auth {
         /* AJAX: update profile */
         add_action( 'wp_ajax_lab_update_profile', array( __CLASS__, 'ajax_update_profile' ) );
 
+        /* AJAX: mint a fresh nonce (bypasses full-page cache which freezes the
+           localized nonce and causes 403 on login/registration submits). */
+        add_action( 'wp_ajax_nopriv_lab_refresh_nonce', array( __CLASS__, 'ajax_refresh_nonce' ) );
+        add_action( 'wp_ajax_lab_refresh_nonce',        array( __CLASS__, 'ajax_refresh_nonce' ) );
+
+        /* Never full-page-cache pages that carry a nonce-bearing form, or the
+           cached nonce goes stale and every submit 403s. */
+        add_action( 'template_redirect', array( __CLASS__, 'exclude_auth_pages_from_cache' ) );
+
         /* Hide admin bar for non-admins */
         add_filter( 'show_admin_bar', array( __CLASS__, 'hide_admin_bar' ) );
 
@@ -82,6 +91,33 @@ class Lab_Auth {
      */
     public static function suppress_wp_user_emails() {
         remove_action( 'user_register', 'wp_send_new_user_notifications' );
+    }
+
+    /**
+     * Return a freshly-minted nonce. Called from JS just before submitting an
+     * auth form, so the token is always valid even if the surrounding page was
+     * served from full-page cache with a stale nonce baked in.
+     */
+    public static function ajax_refresh_nonce() {
+        nocache_headers();
+        wp_send_json_success( array( 'nonce' => wp_create_nonce( 'lab_nonce' ) ) );
+    }
+
+    /**
+     * Tell page caches (LiteSpeed, WP Super Cache, etc.) not to cache pages
+     * that render a nonce-bearing form. A cached nonce expires after 24h and
+     * then every login/registration submit fails check_ajax_referer() → 403.
+     */
+    public static function exclude_auth_pages_from_cache() {
+        if ( ! is_page( array( 'login', 'register', 'business-register' ) ) ) {
+            return;
+        }
+        if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+            define( 'DONOTCACHEPAGE', true );
+        }
+        /* LiteSpeed-specific: force no-cache for this request. */
+        do_action( 'litespeed_control_set_nocache', 'labeng auth page carries a nonce' );
+        nocache_headers();
     }
 
     /* ──────────────────────────────────────────────────────────
