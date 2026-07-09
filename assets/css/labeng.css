@@ -341,6 +341,10 @@ body.admin-bar .lab-global-header {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     align-items: end;
+    /* The row owns the vertical spacing so anything that follows it (another
+       field, or the submit button) always has a consistent gap. Without this
+       the fields' margin-bottom:0 below leaves the submit button flush. */
+    margin-bottom: 1.5rem;
 }
 .lab-form-row--2col .lab-field {
     display: flex;
@@ -739,9 +743,6 @@ body.admin-bar .lab-global-header {
 }
 
 /* ── Auth form polish (design refinements, scoped to auth card) ── */
-.lab-auth-card .lab-field {
-    margin-bottom: 1.25rem;
-}
 .lab-auth-card .lab-field label {
     font-weight: 600;
     color: #cfd4d6;
@@ -811,10 +812,11 @@ body.admin-bar .lab-global-header {
     }
     .lab-auth-card .lab-form-row--2col {
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
     }
     .lab-auth-card .lab-form-row--2col .lab-field {
-        margin-bottom: 1.25rem;
+        margin-bottom: 0;
     }
     .lab-auth-card .lab-form-row--2col .lab-field > label {
         min-height: 0;
@@ -3540,7 +3542,7 @@ body.admin-bar .lab-global-header {
     .lab-table-wrap { border-radius: 0; margin: 0 -1rem; }
     .lab-table th, .lab-table td { padding: 0.75rem 0.875rem; font-size: 0.82rem; }
 
-    .lab-form-row--2col { grid-template-columns: 1fr; gap: 0; }
+    .lab-form-row--2col { grid-template-columns: 1fr; gap: 1.25rem; }
     
     /* Services Tab Mobile Grid styling */
     .lab-service-row {
