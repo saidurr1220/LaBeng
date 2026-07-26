@@ -863,31 +863,60 @@
         });
     });
 
-    /* ── Deals: Create ────────────────────────────────────────── */
+    /* ── Deals: Create / Update ──────────────────────────────── */
     $(document).on('submit', '#lab-add-deal-form', function(e) {
         e.preventDefault();
-        var $btn = $(this).find('button[type="submit"]');
-        $btn.prop('disabled', true).text('Creating...');
+        var $btn = $('#lab-deal-submit-btn');
+        var dealId = $('#lab-deal-id').val();
+        var isEdit = !!dealId;
+
+        $btn.prop('disabled', true).text(isEdit ? 'Saving...' : 'Creating...');
 
         $.post(ajaxurl, {
-            action: 'lab_create_deal',
+            action: isEdit ? 'lab_update_deal' : 'lab_create_deal',
             nonce: nonce,
             business_id: labVars.business_id,
+            deal_id: dealId,
             title: $('#lab-deal-title').val(),
             discount: $('#lab-deal-discount').val(),
             valid_until: $('#lab-deal-valid').val(),
             description: $('#lab-deal-desc').val()
         }, function(res) {
-            $btn.prop('disabled', false).text('Create Deal');
+            $btn.prop('disabled', false).text(isEdit ? 'Save Changes' : 'Create Deal');
             if (res.success) {
                 showMsg('#lab-deals-msg', res.data.message, 'success');
                 $('#lab-add-deal-form')[0].reset();
-                /* Reload page to show new deal */
+                $('#lab-deal-id').val('');
+                /* Reload page to show the new/updated deal */
                 setTimeout(function() { location.reload(); }, 1000);
             } else {
                 showMsg('#lab-deals-msg', res.data.message, 'error');
             }
         });
+    });
+
+    /* Deals: Edit — populate the form above instead of a separate modal */
+    $(document).on('click', '.lab-edit-deal', function() {
+        $('#lab-deal-id').val($(this).data('deal-id'));
+        $('#lab-deal-title').val($(this).data('title'));
+        $('#lab-deal-discount').val($(this).data('discount'));
+        $('#lab-deal-valid').val($(this).data('valid-until'));
+        $('#lab-deal-desc').val($(this).data('description'));
+
+        $('#lab-deal-form-title').text('Edit Deal');
+        $('#lab-deal-submit-btn').text('Save Changes');
+        $('#lab-deal-cancel-edit').show();
+
+        $('html, body').animate({ scrollTop: $('#lab-add-deal-form').offset().top - 100 }, 300);
+    });
+
+    /* Deals: Cancel edit — back to "Add New Deal" mode */
+    $(document).on('click', '#lab-deal-cancel-edit', function() {
+        $('#lab-add-deal-form')[0].reset();
+        $('#lab-deal-id').val('');
+        $('#lab-deal-form-title').text('Add New Deal');
+        $('#lab-deal-submit-btn').text('Create Deal');
+        $(this).hide();
     });
 
     /* Deals: Delete */

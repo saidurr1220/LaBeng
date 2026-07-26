@@ -143,7 +143,7 @@ if ( count( $carousel_items ) < 5 ) {
                         <a href="<?php echo esc_url( $url ); ?>" class="lab-carousel__card-container lab-carousel__card-link">
                             <div class="lab-carousel__card-image-wrap">
                                 <span class="lab-carousel__card-badge">Featured</span>
-                                <img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" />
+                                <img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" <?php echo $index > 0 ? 'loading="lazy"' : ''; ?> />
                             </div>
                             <div class="lab-carousel__card-footer">
                                 <div class="lab-carousel__card-info">

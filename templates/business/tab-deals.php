@@ -40,6 +40,12 @@ $deals = get_posts( array(
                 <td><?php echo esc_html( $valid_until ? date( 'M j, Y', strtotime( $valid_until ) ) : '—' ); ?></td>
                 <td><span class="lab-badge lab-badge--<?php echo $deal_status === 'active' ? 'confirmed' : 'cancelled'; ?>"><?php echo esc_html( ucfirst( $deal_status ) ); ?></span></td>
                 <td>
+                    <button type="button" class="lab-btn lab-btn--sm lab-edit-deal"
+                            data-deal-id="<?php echo esc_attr( $deal->ID ); ?>"
+                            data-title="<?php echo esc_attr( $deal->post_title ); ?>"
+                            data-discount="<?php echo esc_attr( $discount ); ?>"
+                            data-valid-until="<?php echo esc_attr( $valid_until ); ?>"
+                            data-description="<?php echo esc_attr( $deal->post_content ); ?>"><?php esc_html_e( 'Edit', 'labeng' ); ?></button>
                     <button type="button" class="lab-btn lab-btn--sm lab-btn--danger lab-delete-deal" data-deal-id="<?php echo esc_attr( $deal->ID ); ?>"><?php esc_html_e( 'Delete', 'labeng' ); ?></button>
                 </td>
             </tr>
@@ -55,8 +61,9 @@ $deals = get_posts( array(
 
 <!-- Add deal form -->
 <div class="lab-card lab-card--form" style="margin-top:24px;">
-    <h3 class="lab-card__title"><?php esc_html_e( 'Add New Deal', 'labeng' ); ?></h3>
+    <h3 class="lab-card__title" id="lab-deal-form-title"><?php esc_html_e( 'Add New Deal', 'labeng' ); ?></h3>
     <form id="lab-add-deal-form" class="lab-form">
+        <input type="hidden" id="lab-deal-id" name="deal_id" value="" />
         <div class="lab-form-row lab-form-row--2col">
             <div class="lab-field">
                 <label for="lab-deal-title"><?php esc_html_e( 'Deal Title', 'labeng' ); ?></label>
@@ -72,8 +79,9 @@ $deals = get_posts( array(
                 <label for="lab-deal-valid"><?php esc_html_e( 'Valid Until', 'labeng' ); ?></label>
                 <input type="date" id="lab-deal-valid" name="valid_until" required />
             </div>
-            <div class="lab-field" style="display:flex;align-items:flex-end;">
-                <button type="submit" class="lab-btn lab-btn--primary"><?php esc_html_e( 'Create Deal', 'labeng' ); ?></button>
+            <div class="lab-field" style="display:flex;align-items:flex-end;gap:10px;">
+                <button type="submit" id="lab-deal-submit-btn" class="lab-btn lab-btn--primary"><?php esc_html_e( 'Create Deal', 'labeng' ); ?></button>
+                <button type="button" id="lab-deal-cancel-edit" class="lab-btn lab-btn--outline" style="display:none;"><?php esc_html_e( 'Cancel', 'labeng' ); ?></button>
             </div>
         </div>
         <div class="lab-field">
