@@ -23,6 +23,10 @@ class Lab_Auth {
            cycle so the AJAX response returns immediately. */
         add_action( 'lab_email_new_business_pending', array( 'Lab_Email', 'lab_email_business_pending_admin' ), 10, 4 );
 
+        /* WP-Cron hook: deferred welcome email – fires if the synchronous
+           wp_mail() inside the AJAX handler fails (SMTP timeout, etc.). */
+        add_action( 'lab_email_deferred_welcome', array( 'Lab_Email', 'lab_email_welcome' ), 10, 1 );
+
         /* AJAX: customer registration */
         add_action( 'wp_ajax_nopriv_lab_register_customer', array( __CLASS__, 'ajax_register_customer' ) );
 
@@ -42,6 +46,14 @@ class Lab_Auth {
 
         /* AJAX: update profile */
         add_action( 'wp_ajax_lab_update_profile', array( __CLASS__, 'ajax_update_profile' ) );
+
+        /* AJAX: forgot password */
+        add_action( 'wp_ajax_nopriv_lab_forgot_password', array( __CLASS__, 'ajax_forgot_password' ) );
+        add_action( 'wp_ajax_lab_forgot_password',        array( __CLASS__, 'ajax_forgot_password' ) );
+
+        /* AJAX: reset password */
+        add_action( 'wp_ajax_nopriv_lab_reset_password',  array( __CLASS__, 'ajax_reset_password' ) );
+        add_action( 'wp_ajax_lab_reset_password',         array( __CLASS__, 'ajax_reset_password' ) );
 
         /* AJAX: mint a fresh nonce (bypasses full-page cache which freezes the
            localized nonce and causes 403 on login/registration submits). */
@@ -109,7 +121,7 @@ class Lab_Auth {
      * then every login/registration submit fails check_ajax_referer() → 403.
      */
     public static function exclude_auth_pages_from_cache() {
-        if ( ! is_page( array( 'login', 'register', 'business-register' ) ) ) {
+        if ( ! is_page( array( 'login', 'register', 'business-register', 'forgot-password', 'reset-password', 'customer-dashboard', 'business-dashboard' ) ) ) {
             return;
         }
         if ( ! defined( 'DONOTCACHEPAGE' ) ) {
@@ -200,6 +212,9 @@ class Lab_Auth {
                     </div>
                     <button type="submit" class="lab-btn lab-btn--primary lab-btn--full"><?php esc_html_e( 'Login', 'labeng' ); ?></button>
                 </form>
+                <p class="lab-auth-footer">
+                    <a href="<?php echo esc_url( home_url( '/forgot-password/' ) ); ?>"><?php esc_html_e( 'Forgot Password?', 'labeng' ); ?></a>
+                </p>
                 <p class="lab-auth-footer">
                     <?php esc_html_e( "Don't have an account?", 'labeng' ); ?>
                     <a href="<?php echo esc_url( home_url( '/register/' ) ); ?>"><?php esc_html_e( 'Register', 'labeng' ); ?></a>
@@ -349,6 +364,12 @@ class Lab_Auth {
             'role'       => 'customer',
         ) );
 
+        /* Send Welcome Email — with WP-Cron fallback if SMTP is slow/fails */
+        $email_sent = Lab_Email::lab_email_welcome( $user_id );
+        if ( ! $email_sent ) {
+            wp_schedule_single_event( time(), 'lab_email_deferred_welcome', array( $user_id ) );
+        }
+
         /* Auto-login */
         wp_set_current_user( $user_id );
         wp_set_auth_cookie( $user_id, true );
@@ -418,6 +439,12 @@ class Lab_Auth {
             'role'       => 'subscriber', /* Pending approval */
         ) );
 
+        /* Send Welcome Email — with WP-Cron fallback if SMTP is slow/fails */
+        $email_sent = Lab_Email::lab_email_welcome( $user_id );
+        if ( ! $email_sent ) {
+            wp_schedule_single_event( time(), 'lab_email_deferred_welcome', array( $user_id ) );
+        }
+
         /* Create lab_business post (draft, pending approval) */
         $post_id = wp_insert_post( array(
             'post_title'   => $biz_name,
@@ -466,6 +493,7 @@ class Lab_Auth {
         $name     = sanitize_text_field( $_POST['name'] ?? '' );
         $email    = sanitize_email( $_POST['email'] ?? '' );
         $biz_name = sanitize_text_field( $_POST['business_name'] ?? '' );
+        $phone    = sanitize_text_field( $_POST['phone'] ?? '' );
         $category = sanitize_text_field( $_POST['category'] ?? '' );
         $message  = sanitize_textarea_field( $_POST['message'] ?? '' );
 
@@ -477,16 +505,22 @@ class Lab_Auth {
         }
 
         /* Build admin email */
-        $admin_email = get_option( 'admin_email' );
+        $admin_email = 'info@labeng.co.uk';
         $subject     = sprintf( __( 'New partner inquiry from %s', 'labeng' ), $name );
         $body  = "You have received a new partner inquiry via the LaBeng website.\n\n";
         $body .= "Name: {$name}\n";
         $body .= "Email: {$email}\n";
+        if ( $phone )    $body .= "Phone: {$phone}\n";
         if ( $biz_name ) $body .= "Business: {$biz_name}\n";
         if ( $category ) $body .= "Category: {$category}\n";
         $body .= "\nMessage:\n{$message}\n";
 
-        $headers = array( 'Reply-To: ' . $name . ' <' . $email . '>' );
+        $from_email = get_option( 'lab_smtp_from', 'info@labeng.co.uk' );
+        $from_name  = get_option( 'lab_smtp_fromname', 'LaBeng' );
+        $headers = array(
+            'From: ' . $from_name . ' <' . $from_email . '>',
+            'Reply-To: ' . $name . ' <' . $email . '>',
+        );
         wp_mail( $admin_email, $subject, $body, $headers );
 
         /* Keep a record of inquiries for the admin */
@@ -498,6 +532,7 @@ class Lab_Auth {
             'time'          => current_time( 'mysql' ),
             'name'          => $name,
             'email'         => $email,
+            'phone'         => $phone,
             'business_name' => $biz_name,
             'category'      => $category,
             'message'       => $message,
@@ -520,6 +555,7 @@ class Lab_Auth {
 
         $name    = sanitize_text_field( $_POST['name'] ?? '' );
         $email   = sanitize_email( $_POST['email'] ?? '' );
+        $phone   = sanitize_text_field( $_POST['phone'] ?? '' );
         $subject = sanitize_text_field( $_POST['subject'] ?? '' );
         $message = sanitize_textarea_field( $_POST['message'] ?? '' );
 
@@ -531,17 +567,23 @@ class Lab_Auth {
         }
 
         /* Build admin email */
-        $admin_email = get_option( 'admin_email' );
+        $admin_email = 'info@labeng.co.uk';
         $subj_line   = $subject
             ? sprintf( __( 'Customer enquiry: %s', 'labeng' ), $subject )
             : sprintf( __( 'New customer enquiry from %s', 'labeng' ), $name );
         $body  = "You have received a new customer enquiry via the LaBeng website.\n\n";
         $body .= "Name: {$name}\n";
         $body .= "Email: {$email}\n";
+        if ( $phone )   $body .= "Phone: {$phone}\n";
         if ( $subject ) $body .= "Subject: {$subject}\n";
         $body .= "\nMessage:\n{$message}\n";
 
-        $headers = array( 'Reply-To: ' . $name . ' <' . $email . '>' );
+        $from_email = get_option( 'lab_smtp_from', 'info@labeng.co.uk' );
+        $from_name  = get_option( 'lab_smtp_fromname', 'LaBeng' );
+        $headers = array(
+            'From: ' . $from_name . ' <' . $from_email . '>',
+            'Reply-To: ' . $name . ' <' . $email . '>',
+        );
         wp_mail( $admin_email, $subj_line, $body, $headers );
 
         /* Keep a record of customer enquiries for the admin */
@@ -553,6 +595,7 @@ class Lab_Auth {
             'time'    => current_time( 'mysql' ),
             'name'    => $name,
             'email'   => $email,
+            'phone'   => $phone,
             'subject' => $subject,
             'message' => $message,
         ) );
@@ -664,5 +707,160 @@ class Lab_Auth {
         }
 
         wp_send_json_success( array( 'message' => __( 'Profile updated successfully.', 'labeng' ) ) );
+    }
+
+    /* ──────────────────────────────────────────────────────────
+     * Shortcode: [lab_forgot_password_form]
+     * ────────────────────────────────────────────────────────── */
+    public static function render_forgot_password_form() {
+        if ( is_user_logged_in() ) {
+            return '<div class="lab-notice lab-notice--info"><p>' . esc_html__( 'You are already logged in.', 'labeng' ) . '</p></div>';
+        }
+        ob_start();
+        ?>
+        <div class="lab-auth-page">
+            <div class="lab-auth-container">
+                <h1 class="lab-auth-title"><?php esc_html_e( 'Forgot Password', 'labeng' ); ?></h1>
+                <div class="lab-auth-card">
+                    <div id="lab-forgot-msg" class="lab-msg" style="display:none;"></div>
+                    <form id="lab-forgot-form" class="lab-form" novalidate>
+                        <p class="description" style="color: #aaa; margin-bottom: 1.5rem; text-align: center;">
+                            <?php esc_html_e( 'Enter your email address and we will send you a link to reset your password.', 'labeng' ); ?>
+                        </p>
+                        <div class="lab-field">
+                            <label for="lab-forgot-email"><?php esc_html_e( 'Email Address', 'labeng' ); ?></label>
+                            <input type="email" id="lab-forgot-email" name="email" placeholder="janedoe@gmail.com" required />
+                        </div>
+                        <button type="submit" class="lab-btn lab-btn--primary lab-btn--full"><?php esc_html_e( 'Send Reset Link', 'labeng' ); ?></button>
+                    </form>
+                    <p class="lab-auth-footer">
+                        <a href="<?php echo esc_url( home_url( '/login/' ) ); ?>"><?php esc_html_e( 'Back to Login', 'labeng' ); ?></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /* ──────────────────────────────────────────────────────────
+     * Shortcode: [lab_reset_password_form]
+     * ────────────────────────────────────────────────────────── */
+    public static function render_reset_password_form() {
+        if ( is_user_logged_in() ) {
+            return '<div class="lab-notice lab-notice--info"><p>' . esc_html__( 'You are already logged in.', 'labeng' ) . '</p></div>';
+        }
+        
+        $key = sanitize_text_field( $_GET['key'] ?? '' );
+        $login = sanitize_text_field( $_GET['login'] ?? '' );
+        
+        if ( empty( $key ) || empty( $login ) ) {
+            return '<div class="lab-notice lab-notice--danger"><p>' . esc_html__( 'Invalid or expired password reset link.', 'labeng' ) . '</p></div>';
+        }
+        
+        $user = check_password_reset_key( $key, $login );
+        if ( is_wp_error( $user ) ) {
+            return '<div class="lab-notice lab-notice--danger"><p>' . esc_html__( 'This password reset link is invalid or has expired. Please request a new one.', 'labeng' ) . ' <a href="' . esc_url( home_url( '/forgot-password/' ) ) . '">' . esc_html__( 'Forgot Password', 'labeng' ) . '</a></p></div>';
+        }
+        
+        ob_start();
+        ?>
+        <div class="lab-auth-page">
+            <div class="lab-auth-container">
+                <h1 class="lab-auth-title"><?php esc_html_e( 'Reset Password', 'labeng' ); ?></h1>
+                <div class="lab-auth-card">
+                    <div id="lab-reset-msg" class="lab-msg" style="display:none;"></div>
+                    <form id="lab-reset-form" class="lab-form" novalidate>
+                        <input type="hidden" id="lab-reset-key" value="<?php echo esc_attr( $key ); ?>" />
+                        <input type="hidden" id="lab-reset-login" value="<?php echo esc_attr( $login ); ?>" />
+                        
+                        <div class="lab-field">
+                            <label for="lab-reset-pass"><?php esc_html_e( 'New Password', 'labeng' ); ?></label>
+                            <input type="password" id="lab-reset-pass" name="password" placeholder="***********" required />
+                        </div>
+                        
+                        <div class="lab-field">
+                            <label for="lab-reset-pass-confirm"><?php esc_html_e( 'Confirm New Password', 'labeng' ); ?></label>
+                            <input type="password" id="lab-reset-pass-confirm" name="password_confirm" placeholder="***********" required />
+                        </div>
+                        
+                        <button type="submit" class="lab-btn lab-btn--primary lab-btn--full"><?php esc_html_e( 'Reset Password', 'labeng' ); ?></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /* ──────────────────────────────────────────────────────────
+     * AJAX: Forgot Password
+     * ────────────────────────────────────────────────────────── */
+    public static function ajax_forgot_password() {
+        check_ajax_referer( 'lab_nonce', 'nonce' );
+
+        $email = sanitize_email( $_POST['email'] ?? '' );
+
+        if ( empty( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter your email address.', 'labeng' ) ) );
+        }
+
+        if ( ! is_email( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a valid email address.', 'labeng' ) ) );
+        }
+
+        $user = get_user_by( 'email', $email );
+        if ( ! $user ) {
+            wp_send_json_success( array( 'message' => __( 'If that email address exists in our system, we have sent a password reset link.', 'labeng' ) ) );
+            exit;
+        }
+
+        $errors = retrieve_password( $user->user_login );
+
+        if ( is_wp_error( $errors ) ) {
+            wp_send_json_error( array( 'message' => $errors->get_error_message() ) );
+        }
+
+        wp_send_json_success( array( 'message' => __( 'We have sent a password reset link to your email address.', 'labeng' ) ) );
+    }
+
+    /* ──────────────────────────────────────────────────────────
+     * AJAX: Reset Password
+     * ────────────────────────────────────────────────────────── */
+    public static function ajax_reset_password() {
+        check_ajax_referer( 'lab_nonce', 'nonce' );
+
+        $key = sanitize_text_field( $_POST['key'] ?? '' );
+        $login = sanitize_text_field( $_POST['login'] ?? '' );
+        $password = $_POST['password'] ?? '';
+        $password_confirm = $_POST['password_confirm'] ?? '';
+
+        if ( empty( $key ) || empty( $login ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid request.', 'labeng' ) ) );
+        }
+
+        if ( empty( $password ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a new password.', 'labeng' ) ) );
+        }
+
+        if ( strlen( $password ) < 6 ) {
+            wp_send_json_error( array( 'message' => __( 'Password must be at least 6 characters.', 'labeng' ) ) );
+        }
+
+        if ( $password !== $password_confirm ) {
+            wp_send_json_error( array( 'message' => __( 'Passwords do not match.', 'labeng' ) ) );
+        }
+
+        $user = check_password_reset_key( $key, $login );
+        if ( is_wp_error( $user ) ) {
+            wp_send_json_error( array( 'message' => __( 'This reset link has expired or is invalid. Please request a new one.', 'labeng' ) ) );
+        }
+
+        reset_password( $user, $password );
+
+        wp_send_json_success( array(
+            'message'  => __( 'Your password has been reset successfully! Redirecting you to login...', 'labeng' ),
+            'redirect' => home_url( '/login/' ),
+        ) );
     }
 }

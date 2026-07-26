@@ -13,6 +13,8 @@ class Lab_Shortcodes {
         add_shortcode( 'lab_register_business_form', array( 'Lab_Auth', 'render_register_business_form' ) );
         add_shortcode( 'lab_customer_dashboard',     array( __CLASS__, 'render_customer_dashboard' ) );
         add_shortcode( 'lab_business_dashboard',     array( __CLASS__, 'render_business_dashboard' ) );
+        add_shortcode( 'lab_forgot_password_form',   array( 'Lab_Auth', 'render_forgot_password_form' ) );
+        add_shortcode( 'lab_reset_password_form',    array( 'Lab_Auth', 'render_reset_password_form' ) );
     }
 
     /**

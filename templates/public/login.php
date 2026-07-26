@@ -24,6 +24,9 @@ labeng_get_header();
                     <label for="lab-login-pass">Password</label>
                     <input type="password" id="lab-login-pass" name="password" placeholder="***********" required />
                 </div>
+                <div class="lab-auth-forgot" style="text-align: right; margin: -0.5rem 0 1rem;">
+                    <a href="<?php echo esc_url( home_url( '/forgot-password/' ) ); ?>" style="font-size: 0.85rem; color: #5FE0EC;">Forgot Password?</a>
+                </div>
                 
                 <button type="submit" class="lab-btn lab-btn--primary lab-btn--full">Log in</button>
             </form>

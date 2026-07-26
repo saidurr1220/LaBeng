@@ -136,6 +136,16 @@ class Lab_Install {
                 'slug'      => 'find-near-me',
                 'shortcode' => '',
             ),
+            array(
+                'title'     => 'Forgot Password',
+                'slug'      => 'forgot-password',
+                'shortcode' => '[lab_forgot_password_form]',
+            ),
+            array(
+                'title'     => 'Reset Password',
+                'slug'      => 'reset-password',
+                'shortcode' => '[lab_reset_password_form]',
+            ),
         );
 
         $home_id = 0;

@@ -11,7 +11,10 @@ $user = wp_get_current_user();
             <span></span><span></span><span></span>
         </button>
         <span class="lab-dash-topbar__title">Customer Dashboard</span>
-        <span class="lab-dash-topbar__user"><?php echo esc_html( $user->display_name ); ?></span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="lab-dash-topbar__user"><?php echo esc_html( $user->display_name ); ?></span>
+            <a href="<?php echo esc_url( wp_logout_url( home_url( '/login/' ) ) ); ?>" style="color: #ef4444; font-size: 13px; text-decoration: none; display: flex; align-items: center;" title="<?php esc_attr_e( 'Logout', 'labeng' ); ?>"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></a>
+        </div>
     </div>
 
     <!-- Sidebar overlay -->
@@ -24,6 +27,10 @@ $user = wp_get_current_user();
             <span class="lab-sidebar__brand-sub">Customer Portal</span>
         </div>
         <nav class="lab-sidebar__nav">
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="lab-sidebar__link lab-sidebar__link--home">
+                <span class="lab-sidebar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                <span><?php esc_html_e( 'Back to Home', 'labeng' ); ?></span>
+            </a>
             <a href="<?php echo esc_url( home_url( '/businesses/' ) ); ?>" class="lab-sidebar__link lab-sidebar__link--browse">
                 <span class="lab-sidebar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                 <span><?php esc_html_e( 'Browse Businesses', 'labeng' ); ?></span>

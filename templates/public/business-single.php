@@ -41,7 +41,7 @@ $rating_total = intval( get_post_meta( $business_id, '_lab_total_reviews', true 
                         <span><?php echo esc_html( sprintf( _n( '(%d review)', '(%d reviews)', $rating_total, 'labeng' ), $rating_total ) ); ?></span>
                     </div>
                 <?php endif; ?>
-                <a href="#lab-booking-inline" class="lab-btn lab-btn--primary lab-single-book-cta">Book an appointment</a>
+                <a href="#lab-booking-inline" class="lab-btn lab-btn--primary lab-single-book-cta">Book</a>
             </div>
         </div>
     </div>

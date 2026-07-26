@@ -17,6 +17,94 @@ class Lab_Bookings {
     }
 
     /**
+     * Resolve the AUTHORITATIVE price for a booking, server-side, from the
+     * business's stored catalog (_lab_booking_steps / _lab_services).
+     *
+     * SECURITY: this must never trust a client-submitted price. The booking
+     * flow's JS computes a price for display purposes only; the real charge
+     * and DB total are always derived here from server-owned data, identified
+     * solely by option *names* the client selected (which are just labels,
+     * not values). Without this, a customer could submit an arbitrary
+     * service_price/amount and pay (or owe commission on) any figure they
+     * like for a real service.
+     *
+     * @return float|false Total price, or false if nothing in the catalog matches.
+     */
+    private static function resolve_price( $business_id, $service_name, $vehicle_name, $duration_name, $quantity ) {
+        $quantity = absint( $quantity );
+        if ( $quantity < 1 )  $quantity = 1;
+        if ( $quantity > 50 ) $quantity = 50; // sane upper bound
+
+        $booking_steps_json = get_post_meta( $business_id, '_lab_booking_steps', true );
+        $booking_steps      = json_decode( $booking_steps_json, true );
+
+        $matched = false;
+        $base    = 0.0;
+        $factor  = 1.0;
+
+        if ( ! empty( $booking_steps ) && is_array( $booking_steps ) ) {
+            foreach ( $booking_steps as $step ) {
+                if ( empty( $step['options'] ) || ! is_array( $step['options'] ) ) continue;
+                $type = $step['type'] ?? '';
+
+                if ( $type === 'vehicles' && $vehicle_name ) {
+                    foreach ( $step['options'] as $opt ) {
+                        if ( ( $opt['name'] ?? '' ) === $vehicle_name ) {
+                            $base   += floatval( $opt['price'] ?? 0 );
+                            $matched = true;
+                            break;
+                        }
+                    }
+                } elseif ( $type === 'services' && $service_name ) {
+                    foreach ( $step['options'] as $opt ) {
+                        if ( ( $opt['name'] ?? '' ) === $service_name ) {
+                            $base   += floatval( $opt['price'] ?? 0 );
+                            $matched = true;
+                            break;
+                        }
+                    }
+                } elseif ( $type === 'duration' && $duration_name ) {
+                    foreach ( $step['options'] as $opt ) {
+                        if ( ( $opt['name'] ?? '' ) === $duration_name ) {
+                            $f = floatval( $opt['factor'] ?? ( $opt['price'] ?? 1 ) );
+                            $factor = $f > 0 ? $f : 1.0;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( $matched ) {
+            return round( $base * $factor * $quantity, 2 );
+        }
+
+        /* Fallback: flat services list (simple appointment-style businesses) */
+        $services = json_decode( get_post_meta( $business_id, '_lab_services', true ), true );
+        if ( is_array( $services ) ) {
+            foreach ( $services as $svc ) {
+                if ( ( $svc['name'] ?? '' ) === $service_name ) {
+                    return round( floatval( $svc['price'] ?? 0 ) * $quantity, 2 );
+                }
+            }
+        }
+
+        /* Fallback: same demo/mock services the booking-flow UI shows when a
+           business has configured no services yet (assets/js/labeng.js,
+           servicesToRender default). Kept in sync so demo bookings don't 404. */
+        $mock_services = array(
+            'Standard Consultation' => 50,
+            'Premium Package'       => 150,
+            'Express Service'       => 75,
+        );
+        if ( isset( $mock_services[ $service_name ] ) ) {
+            return round( $mock_services[ $service_name ] * $quantity, 2 );
+        }
+
+        return false;
+    }
+
+    /**
      * Create a booking.
      *
      * @param array $data
@@ -25,13 +113,15 @@ class Lab_Bookings {
     public static function create_booking( $data ) {
         global $wpdb;
 
-        $business_id  = absint( $data['business_id'] );
-        $customer_id  = absint( $data['customer_id'] );
-        $service_name = sanitize_text_field( $data['service_name'] );
-        $service_price= floatval( $data['service_price'] );
-        $booking_date = sanitize_text_field( $data['booking_date'] );
-        $booking_time = sanitize_text_field( $data['booking_time'] );
-        $notes        = sanitize_textarea_field( $data['notes'] ?? '' );
+        $business_id   = absint( $data['business_id'] );
+        $customer_id   = absint( $data['customer_id'] );
+        $service_name  = sanitize_text_field( $data['service_name'] );
+        $vehicle_name  = sanitize_text_field( $data['vehicle_name'] ?? '' );
+        $duration_name = sanitize_text_field( $data['duration_name'] ?? '' );
+        $quantity      = absint( $data['quantity'] ?? 1 );
+        $booking_date  = sanitize_text_field( $data['booking_date'] );
+        $booking_time  = sanitize_text_field( $data['booking_time'] );
+        $notes         = sanitize_textarea_field( $data['notes'] ?? '' );
 
         /* 1. Verify customer is logged in */
         if ( ! $customer_id ) {
@@ -48,39 +138,10 @@ class Lab_Bookings {
             return new WP_Error( 'business_not_approved', __( 'This business is not currently accepting bookings.', 'labeng' ) );
         }
 
-        /* 3. Verify service exists in business services or custom booking steps */
-        $booking_steps_json = get_post_meta( $business_id, '_lab_booking_steps', true );
-        $booking_steps      = json_decode( $booking_steps_json, true );
-        $found = false;
-
-        if ( ! empty( $booking_steps ) && is_array( $booking_steps ) ) {
-            foreach ( $booking_steps as $step ) {
-                if ( ! empty( $step['options'] ) && is_array( $step['options'] ) ) {
-                    foreach ( $step['options'] as $opt ) {
-                        if ( $opt['name'] === $service_name ) {
-                            $service_price = floatval( $data['service_price'] );
-                            $found = true;
-                            break 2;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ( ! $found ) {
-            $services = json_decode( get_post_meta( $business_id, '_lab_services', true ), true );
-            if ( is_array( $services ) ) {
-                foreach ( $services as $svc ) {
-                    if ( $svc['name'] === $service_name ) {
-                        $service_price = floatval( $svc['price'] );
-                        $found = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if ( ! $found ) {
+        /* 3. Resolve the AUTHORITATIVE price server-side — never trust the
+              client-submitted service_price/amount (see resolve_price()). */
+        $service_price = self::resolve_price( $business_id, $service_name, $vehicle_name, $duration_name, $quantity );
+        if ( $service_price === false ) {
             return new WP_Error( 'invalid_service', __( 'Service not found.', 'labeng' ) );
         }
 
@@ -284,15 +345,20 @@ class Lab_Bookings {
             wp_send_json_error( array( 'message' => __( 'You must be logged in.', 'labeng' ) ) );
         }
 
+        $qty = absint( $_POST['quantity'] ?? 1 );
+        $notes = sanitize_textarea_field( $_POST['notes'] ?? '' );
+
         $result = self::create_booking( array(
             'business_id'      => absint( $_POST['business_id'] ?? 0 ),
             'customer_id'      => get_current_user_id(),
             'service_name'     => sanitize_text_field( $_POST['service_name'] ?? '' ),
-            'service_price'    => floatval( $_POST['service_price'] ?? 0 ),
+            'vehicle_name'     => sanitize_text_field( $_POST['vehicle_name'] ?? '' ),
+            'duration_name'    => sanitize_text_field( $_POST['duration_name'] ?? '' ),
             'booking_date'     => sanitize_text_field( $_POST['booking_date'] ?? '' ),
             'booking_time'     => sanitize_text_field( $_POST['booking_time'] ?? '' ),
-            'notes'            => sanitize_textarea_field( $_POST['notes'] ?? '' ),
+            'notes'            => $notes,
             'payment_intent_id'=> sanitize_text_field( $_POST['payment_intent_id'] ?? '' ),
+            'quantity'         => $qty,
         ) );
 
         if ( is_wp_error( $result ) ) {
@@ -374,10 +440,21 @@ class Lab_Bookings {
             wp_send_json_error( array( 'message' => __( 'Payment gateway not configured. Please contact the business to arrange payment.', 'labeng' ) ) );
         }
 
-        $amount   = floatval( $_POST['amount'] ?? 0 );
-        $currency = sanitize_text_field( $_POST['currency'] ?? get_option( 'lab_currency', 'GBP' ) );
+        /* SECURITY: the charge amount is ALWAYS recomputed server-side from
+           the business's catalog — never taken from the client's "amount".
+           A client-trusted amount here would let a customer create a real
+           Stripe PaymentIntent (and later a "paid" booking) for any price
+           they choose. See Lab_Bookings::resolve_price(). */
+        $business_id   = absint( $_POST['business_id'] ?? 0 );
+        $service_name  = sanitize_text_field( $_POST['service_name'] ?? '' );
+        $vehicle_name  = sanitize_text_field( $_POST['vehicle_name'] ?? '' );
+        $duration_name = sanitize_text_field( $_POST['duration_name'] ?? '' );
+        $quantity      = absint( $_POST['quantity'] ?? 1 );
+        $currency      = sanitize_text_field( $_POST['currency'] ?? get_option( 'lab_currency', 'GBP' ) );
 
-        if ( $amount <= 0 ) {
+        $amount = self::resolve_price( $business_id, $service_name, $vehicle_name, $duration_name, $quantity );
+
+        if ( $amount === false || $amount <= 0 ) {
             wp_send_json_error( array( 'message' => __( 'Invalid payment amount.', 'labeng' ) ) );
         }
 

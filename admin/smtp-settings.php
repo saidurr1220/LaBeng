@@ -42,10 +42,35 @@ $has_pass  = (bool) get_option( 'lab_smtp_pass', '' );
 /* Send test email */
 $test_msg = '';
 if ( isset( $_POST['lab_smtp_test'] ) && check_admin_referer( 'lab_save_smtp', 'lab_smtp_nonce' ) ) {
-    $result = wp_mail( get_option( 'admin_email' ), 'Labeng SMTP Test', '<p>SMTP is working correctly.</p>' );
-    $test_msg = $result
-        ? '<div class="notice notice-success is-dismissible"><p>Test email sent to <strong>' . esc_html( get_option( 'admin_email' ) ) . '</strong>.</p></div>'
-        : '<div class="notice notice-error is-dismissible"><p>Test email failed. Check your SMTP credentials and server logs.</p></div>';
+    $to_email = ! empty( $_POST['lab_smtp_test_to'] ) ? sanitize_email( $_POST['lab_smtp_test_to'] ) : get_option( 'admin_email' );
+    
+    $mail_error = '';
+    $catch_error = function( $error ) use ( &$mail_error ) {
+        if ( is_wp_error( $error ) ) {
+            $mail_error = $error->get_error_message();
+            if ( isset( $error->error_data['wp_mail_failed'] ) ) {
+                $error_data = $error->error_data['wp_mail_failed'];
+                // Check if it has PHPMailer error info
+                if ( is_array( $error_data ) && isset( $error_data['ErrorInfo'] ) ) {
+                    $mail_error .= ' (PHPMailer Error: ' . $error_data['ErrorInfo'] . ')';
+                } elseif ( is_object( $error_data ) && isset( $error_data->ErrorInfo ) ) {
+                    $mail_error .= ' (PHPMailer Error: ' . $error_data->ErrorInfo . ')';
+                }
+            }
+        }
+    };
+    add_action( 'wp_mail_failed', $catch_error );
+    
+    $result = wp_mail( $to_email, 'Labeng SMTP Test', '<p>SMTP is working correctly.</p>' );
+    
+    remove_action( 'wp_mail_failed', $catch_error );
+    
+    if ( $result ) {
+        $test_msg = '<div class="notice notice-success is-dismissible"><p>Test email sent successfully to <strong>' . esc_html( $to_email ) . '</strong>.</p></div>';
+    } else {
+        $error_desc = $mail_error ? ': ' . esc_html( $mail_error ) : '';
+        $test_msg = '<div class="notice notice-error is-dismissible"><p>Test email failed' . $error_desc . '. Check your SMTP credentials and server logs.</p></div>';
+    }
 }
 echo wp_kses_post( $test_msg );
 ?>
@@ -120,9 +145,10 @@ echo wp_kses_post( $test_msg );
             </tr>
         </table>
 
-        <p class="submit">
+        <p class="submit" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <?php submit_button( 'Save SMTP Settings', 'primary', 'submit', false ); ?>
-            &nbsp;
+            <span style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></span>
+            <input type="email" name="lab_smtp_test_to" class="regular-text" placeholder="test-recipient@example.com" style="margin: 0; max-width: 250px;" value="<?php echo esc_attr( get_option('admin_email') ); ?>" />
             <button type="submit" name="lab_smtp_test" value="1" class="button button-secondary">Send Test Email</button>
         </p>
     </form>

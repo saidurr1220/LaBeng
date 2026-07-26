@@ -56,6 +56,10 @@ labeng_get_header();
                         </div>
                     </div>
                     <div class="lab-field">
+                        <label>Phone Number <span class="lab-field-optional">(optional)</span></label>
+                        <input type="tel" name="phone" placeholder="e.g. +44 7700 900000" />
+                    </div>
+                    <div class="lab-field">
                         <label>Subject <span class="lab-field-optional">(optional)</span></label>
                         <input type="text" name="subject" placeholder="e.g. Question about a booking" />
                     </div>

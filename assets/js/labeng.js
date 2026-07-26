@@ -640,6 +640,81 @@
         });
     });
 
+    /* Forgot Password */
+    $(document).on('submit', '#lab-forgot-form', function(e) {
+        e.preventDefault();
+        var $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('Sending reset link...');
+
+        labWithFreshNonce(function() {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                timeout: 30000,
+                data: {
+                    action: 'lab_forgot_password',
+                    nonce: nonce,
+                    email: $('#lab-forgot-email').val()
+                },
+                success: function(res) {
+                    $btn.prop('disabled', false).text('Send Reset Link');
+                    if (res.success) {
+                        showMsg('#lab-forgot-msg', res.data.message, 'success');
+                    } else {
+                        showMsg('#lab-forgot-msg', res.data.message, 'error');
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).text('Send Reset Link');
+                    showMsg('#lab-forgot-msg', 'Something went wrong. Please try again.', 'error');
+                }
+            });
+        });
+    });
+
+    /* Reset Password */
+    $(document).on('submit', '#lab-reset-form', function(e) {
+        e.preventDefault();
+        var $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('Resetting password...');
+
+        var key = $('#lab-reset-key').val();
+        var login = $('#lab-reset-login').val();
+        var pass = $('#lab-reset-pass').val();
+        var pass2 = $('#lab-reset-pass-confirm').val();
+
+        labWithFreshNonce(function() {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                timeout: 30000,
+                data: {
+                    action: 'lab_reset_password',
+                    nonce: nonce,
+                    key: key,
+                    login: login,
+                    password: pass,
+                    password_confirm: pass2
+                },
+                success: function(res) {
+                    $btn.prop('disabled', false).text('Reset Password');
+                    if (res.success) {
+                        showMsg('#lab-reset-msg', res.data.message, 'success');
+                        if (res.data.redirect) {
+                            setTimeout(function() { window.location.href = res.data.redirect; }, 2000);
+                        }
+                    } else {
+                        showMsg('#lab-reset-msg', res.data.message, 'error');
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).text('Reset Password');
+                    showMsg('#lab-reset-msg', 'Something went wrong. Please try again.', 'error');
+                }
+            });
+        });
+    });
+
     /* Business Registration */
     $(document).on('submit', '#lab-biz-register-form', function(e) {
         e.preventDefault();
@@ -689,22 +764,35 @@
         var $btn = $form.find('button[type="submit"]');
         $btn.prop('disabled', true).text('Sending...');
 
-        $.post(ajaxurl, {
-            action: 'lab_partner_inquiry',
-            nonce: nonce,
-            name: $form.find('[name="name"]').val(),
-            email: $form.find('[name="email"]').val(),
-            business_name: $form.find('[name="business_name"]').val(),
-            category: $form.find('[name="category"]').val(),
-            message: $form.find('[name="message"]').val()
-        }, function(res) {
-            $btn.prop('disabled', false).text('Send Message');
-            if (res.success) {
-                showMsg('#lab-partner-msg', res.data.message, 'success');
-                $form[0].reset();
-            } else {
-                showMsg('#lab-partner-msg', res.data.message, 'error');
-            }
+        labWithFreshNonce(function() {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                timeout: 30000,
+                data: {
+                    action: 'lab_partner_inquiry',
+                    nonce: nonce,
+                    name: $form.find('[name="name"]').val(),
+                    email: $form.find('[name="email"]').val(),
+                    business_name: $form.find('[name="business_name"]').val(),
+                    phone: $form.find('[name="phone"]').val(),
+                    category: $form.find('[name="category"]').val(),
+                    message: $form.find('[name="message"]').val()
+                },
+                success: function(res) {
+                    $btn.prop('disabled', false).text('Send Message');
+                    if (res.success) {
+                        showMsg('#lab-partner-msg', res.data.message, 'success');
+                        $form[0].reset();
+                    } else {
+                        showMsg('#lab-partner-msg', res.data.message || 'Something went wrong. Please try again.', 'error');
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).text('Send Message');
+                    showMsg('#lab-partner-msg', 'Something went wrong. Please try again.', 'error');
+                }
+            });
         });
     });
 
@@ -715,21 +803,34 @@
         var $btn = $form.find('button[type="submit"]');
         $btn.prop('disabled', true).text('Sending...');
 
-        $.post(ajaxurl, {
-            action: 'lab_customer_inquiry',
-            nonce: nonce,
-            name: $form.find('[name="name"]').val(),
-            email: $form.find('[name="email"]').val(),
-            subject: $form.find('[name="subject"]').val(),
-            message: $form.find('[name="message"]').val()
-        }, function(res) {
-            $btn.prop('disabled', false).text('Submit');
-            if (res.success) {
-                showMsg('#lab-customer-contact-msg', res.data.message, 'success');
-                $form[0].reset();
-            } else {
-                showMsg('#lab-customer-contact-msg', res.data.message, 'error');
-            }
+        labWithFreshNonce(function() {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                timeout: 30000,
+                data: {
+                    action: 'lab_customer_inquiry',
+                    nonce: nonce,
+                    name: $form.find('[name="name"]').val(),
+                    email: $form.find('[name="email"]').val(),
+                    phone: $form.find('[name="phone"]').val(),
+                    subject: $form.find('[name="subject"]').val(),
+                    message: $form.find('[name="message"]').val()
+                },
+                success: function(res) {
+                    $btn.prop('disabled', false).text('Submit');
+                    if (res.success) {
+                        showMsg('#lab-customer-contact-msg', res.data.message, 'success');
+                        $form[0].reset();
+                    } else {
+                        showMsg('#lab-customer-contact-msg', res.data.message || 'Something went wrong. Please try again.', 'error');
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).text('Submit');
+                    showMsg('#lab-customer-contact-msg', 'Something went wrong. Please try again.', 'error');
+                }
+            });
         });
     });
 
@@ -977,28 +1078,61 @@
                    .toggleClass('lab-bf-step-dot--done', s < n);
         });
 
-        var $anchor = $('#lab-booking-inline');
-        if ($anchor.length) {
-            $('html, body').animate({ scrollTop: $anchor.offset().top - 90 }, 300);
+        /* Only scroll to the booking section on user-initiated step changes
+           (step > 1), not on the initial page load render (step 1). */
+        if (n > 1) {
+            var $anchor = $('#lab-booking-inline');
+            if ($anchor.length) {
+                $('html, body').animate({ scrollTop: $anchor.offset().top - 90 }, 300);
+            }
         }
     }
 
     function labBfRenderCalendar() {
-        var dateHtml = '';
         var today = new Date();
+        today.setHours(0, 0, 0, 0);
         var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        $('#lab-calendar-month-title').text(monthNames[today.getMonth()] + ' ' + today.getFullYear());
-        var currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
-        for (var p = 0; p < currentDayIndex; p++) { dateHtml += '<div></div>'; }
-        for (var i = 0; i < 14; i++) {
-            var d = new Date(today);
-            d.setDate(today.getDate() + i);
+        var year = today.getFullYear();
+        var month = today.getMonth();
+
+        $('#lab-calendar-month-title').text(monthNames[month] + ' ' + year);
+
+        /* First day of the month (Mon=0 … Sun=6 for grid alignment) */
+        var firstDay = new Date(year, month, 1);
+        var startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+        /* Total days in this month */
+        var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        /* Max selectable date: today + 13 = 14 days total */
+        var maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + 13);
+
+        var dateHtml = '';
+
+        /* Empty cells before the 1st */
+        for (var p = 0; p < startOffset; p++) {
+            dateHtml += '<div class="lab-date-empty"></div>';
+        }
+
+        /* Render every day of the month */
+        for (var day = 1; day <= daysInMonth; day++) {
+            var d = new Date(year, month, day);
             var yyyy = d.getFullYear();
             var mm = String(d.getMonth() + 1).padStart(2, '0');
             var dd = String(d.getDate()).padStart(2, '0');
             var dateStr = yyyy + '-' + mm + '-' + dd;
-            dateHtml += '<button type="button" class="lab-date-btn" data-date="' + dateStr + '">' + d.getDate() + '</button>';
+
+            var isPast = d < today;
+            var isFuture = d > maxDate;
+
+            if (isPast || isFuture) {
+                dateHtml += '<div class="lab-date-btn lab-date-btn--disabled" aria-disabled="true">' + day + '</div>';
+            } else {
+                dateHtml += '<button type="button" class="lab-date-btn" data-date="' + dateStr + '">' + day + '</button>';
+            }
         }
+
         $('#lab-bf-mock-dates').html(dateHtml);
     }
 
@@ -1007,9 +1141,11 @@
         var vehiclePrice = parseFloat(window.labBfData.vehicle_price || 0);
         var servicePrice = parseFloat(window.labBfData.service_price || 0);
         var durationFactor = parseFloat(window.labBfData.duration_factor || 1);
+        var qty = parseInt(window.labBfData.quantity || 1, 10);
+        window.labBfData.quantity = qty;
         
         var basePrice = vehiclePrice + servicePrice;
-        var totalPrice = basePrice * durationFactor;
+        var totalPrice = basePrice * durationFactor * qty;
         
         window.labBfData.calculated_total = totalPrice;
 
@@ -1031,6 +1167,7 @@
 
         var dateLabel = window.labBfData.dateLabel || window.labBfData.date || '—';
         $('#lab-pay-datetime').text(dateLabel + ' · ' + (window.labBfData.time || '—'));
+        $('#lab-qty-val').text(qty);
         $('#lab-pay-total').text(cs + totalPrice.toFixed(2));
         
         window.labStripe = null;
@@ -1046,7 +1183,7 @@
                 '<div class="lab-bf-container">' +
                   '<div class="lab-bf-login-gate">' +
                     '<h2>Ready to book?</h2>' +
-                    '<p>Log in or create an account to book an appointment with this business.</p>' +
+                    '<p>Log in or create an account to book with this business.</p>' +
                     '<a class="lab-btn lab-btn--primary" href="' + labVars.login_url + '?redirect=' + encodeURIComponent(window.location.href) + '">Log in to continue</a>' +
                   '</div>' +
                 '</div>'
@@ -1163,6 +1300,14 @@
                             '<div id="lab-pay-vehicle-row" class="lab-bf-summary-row" style="display:none;"><span>Vehicle</span><strong id="lab-pay-vehicle-name">—</strong></div>' +
                             '<div id="lab-pay-duration-row" class="lab-bf-summary-row" style="display:none;"><span>Duration</span><strong id="lab-pay-duration-name">—</strong></div>' +
                             '<div class="lab-bf-summary-row"><span>When</span><strong id="lab-pay-datetime">—</strong></div>' +
+                            '<div class="lab-bf-summary-row lab-bf-summary-row--quantity" style="display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>Quantity</span>' +
+                                '<div class="lab-qty-selector" style="display: flex; align-items: center; gap: 8px;">' +
+                                    '<button type="button" class="lab-qty-btn lab-qty-minus">-</button>' +
+                                    '<span id="lab-qty-val" style="font-weight: 700; min-width: 20px; text-align: center;">1</span>' +
+                                    '<button type="button" class="lab-qty-btn lab-qty-plus">+</button>' +
+                                '</div>' +
+                            '</div>' +
                             '<div class="lab-bf-summary-row lab-bf-summary-row--total"><span>Total</span><strong id="lab-pay-total">' + cs + '0.00</strong></div>' +
                         '</div>' +
                         '<div id="lab-stripe-payment-element"></div>' +
@@ -1184,7 +1329,7 @@
 
             var html =
                 '<div class="lab-bf-container">' +
-                    '<h2 class="lab-bf-title">Book your appointment</h2>' +
+                    '<h2 class="lab-bf-title">Book</h2>' +
                     stepper +
                     stepsHtml +
                 '</div>';
@@ -1259,6 +1404,43 @@
     $(document).on('click', '.lab-bf-back', function () {
         labBfGoToStep(parseInt($(this).data('back'), 10));
     });
+
+    /* Quantity Selector Click Handlers */
+    $(document).on('click', '.lab-qty-minus', function (e) {
+        e.preventDefault();
+        var qty = window.labBfData.quantity || 1;
+        if (qty > 1) {
+            qty--;
+            window.labBfData.quantity = qty;
+            $('#lab-qty-val').text(qty);
+            labBfUpdateTotal();
+        }
+    });
+
+    $(document).on('click', '.lab-qty-plus', function (e) {
+        e.preventDefault();
+        var qty = window.labBfData.quantity || 1;
+        qty++;
+        window.labBfData.quantity = qty;
+        $('#lab-qty-val').text(qty);
+        labBfUpdateTotal();
+    });
+
+    function labBfUpdateTotal() {
+        var cs = labVars.currency_symbol || '£';
+        var vehiclePrice = parseFloat(window.labBfData.vehicle_price || 0);
+        var servicePrice = parseFloat(window.labBfData.service_price || 0);
+        var durationFactor = parseFloat(window.labBfData.duration_factor || 1);
+        var qty = parseInt(window.labBfData.quantity || 1, 10);
+        
+        var basePrice = vehiclePrice + servicePrice;
+        var totalPrice = basePrice * durationFactor * qty;
+        
+        window.labBfData.calculated_total = totalPrice;
+        $('#lab-pay-total').text(cs + totalPrice.toFixed(2));
+        
+        labInitPayment(totalPrice);
+    }
 
     /* Select date (step 2) */
     $(document).on('click', '.lab-date-btn', function () {
@@ -1497,16 +1679,19 @@
     /* ── Payment Helpers ─────────────────────────────────────── */
 
     function labFinalizeBooking(paymentIntentId, $btn) {
+        var qty = window.labBfData.quantity || 1;
         $.post(ajaxurl, {
             action: 'lab_create_booking',
             nonce: nonce,
             business_id: window.labCurrentBusinessId,
             service_name: window.labBfData.service_name,
-            service_price: window.labBfData.service_price,
+            vehicle_name: window.labBfData.vehicle_name || '',
+            duration_name: window.labBfData.duration_name || '',
             booking_date: window.labBfData.date,
             booking_time: window.labBfData.time,
             payment_intent_id: paymentIntentId || '',
-            notes: (window.labBfData.notes || '') + ' | Name: ' + (window.labBfData.name || '') + ' | Phone: ' + (window.labBfData.phone || '')
+            notes: (window.labBfData.notes || '') + ' | Name: ' + (window.labBfData.name || '') + ' | Phone: ' + (window.labBfData.phone || '') + ' | Quantity: ' + qty,
+            quantity: qty
         }, function(res) {
             if ($btn) $btn.prop('disabled', false).text('Pay & Confirm');
             if (res.success) {
@@ -1545,7 +1730,11 @@
             $.post(ajaxurl, {
                 action: 'lab_create_payment_intent',
                 nonce: nonce,
-                amount: amount,
+                business_id: window.labCurrentBusinessId,
+                service_name: (window.labBfData && window.labBfData.service_name) || '',
+                vehicle_name: (window.labBfData && window.labBfData.vehicle_name) || '',
+                duration_name: (window.labBfData && window.labBfData.duration_name) || '',
+                quantity: (window.labBfData && window.labBfData.quantity) || 1,
                 currency: labVars.currency || 'GBP'
             }, function(res) {
                 if (!res.success) {

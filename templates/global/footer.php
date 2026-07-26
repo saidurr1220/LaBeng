@@ -35,6 +35,7 @@
                 </a>
                 <?php endif; ?>
             </div>
+            <p class="lab-global-footer__copy">&copy; <?php echo date('Y'); ?> LaBeng &middot; <em>The world at your fingertips</em></p>
         </div>
     </footer>
     <?php wp_footer(); ?>

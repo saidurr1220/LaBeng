@@ -1444,6 +1444,12 @@ body.admin-bar .lab-global-header {
 .lab-partner-cta-box .lab-btn {
     font-size: 1.05rem;
 }
+.lab-partner-cta-box__slogan {
+    font-size: 0.8rem !important;
+    color: rgba(255, 255, 255, 0.25) !important;
+    margin: -0.5rem 0 0 !important;
+    letter-spacing: 0.04em;
+}
 .lab-partner-right .lab-partner-card {
     background: var(--lab-bg-card);
     color: var(--lab-text-main);
@@ -1556,7 +1562,9 @@ body.admin-bar .lab-global-header {
 }
 .lab-global-footer__inner {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -1567,6 +1575,18 @@ body.admin-bar .lab-global-header {
 }
 .lab-global-footer__socials span {
     font-size: 1.25rem;
+}
+.lab-global-footer__copy {
+    font-family: var(--lab-font-body);
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.28);
+    letter-spacing: 0.02em;
+    margin: 0;
+    text-align: center;
+}
+.lab-global-footer__copy em {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.22);
 }
 
 /* Utilities */
@@ -3298,15 +3318,20 @@ body.admin-bar .lab-global-header {
     display: flex;
     gap: 1.5rem;
     flex-wrap: wrap;
+    max-width: 100%;
+    overflow: hidden;
 }
 .lab-calendar-dates,
 .lab-calendar-times {
     flex: 1;
     min-width: 280px;
+    max-width: 100%;
     background: #111114;
     padding: 1.25rem;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.06);
+    box-sizing: border-box;
+    overflow: hidden;
 }
 .lab-cal-head {
     margin-bottom: 1rem;
@@ -3332,6 +3357,10 @@ body.admin-bar .lab-global-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 0.4rem;
+    overflow: hidden;
+}
+.lab-date-empty {
+    aspect-ratio: 1;
 }
 .lab-date-btn {
     aspect-ratio: 1;
@@ -3347,6 +3376,16 @@ body.admin-bar .lab-global-header {
     font-weight: 600;
     transition: all 0.15s ease;
     padding: 0;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+}
+.lab-date-btn--disabled {
+    background: #18181c;
+    color: #444;
+    cursor: not-allowed;
+    border-color: transparent;
+    pointer-events: none;
 }
 .lab-date-btn:hover {
     border-color: rgba(24, 105, 127,0.5);
@@ -3483,6 +3522,24 @@ body.admin-bar .lab-global-header {
     }
     .lab-calendar-layout {
         flex-direction: column;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    .lab-calendar-dates {
+        min-width: 0;
+        width: 100%;
+        padding: 1rem;
+    }
+    .lab-cal-dow {
+        gap: 0.25rem;
+        font-size: 0.65rem;
+    }
+    .lab-cal-grid {
+        gap: 0.25rem;
+    }
+    .lab-date-btn {
+        font-size: 0.8rem;
+        border-radius: 6px;
     }
 }
 
@@ -3807,6 +3864,15 @@ body.admin-bar .lab-global-header {
     position: relative;
     overflow: hidden;
     border-radius: inherit;
+}
+a.lab-carousel__card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+a.lab-carousel__card-link:hover {
+    opacity: 1;
 }
 .lab-carousel__card-image-wrap {
     position: absolute;
@@ -4775,6 +4841,17 @@ body.admin-bar .lab-global-header {
     max-width: 420px;
     text-align: center;
 }
+.lab-hero__slogan {
+    font-family: var(--lab-font-body);
+    font-size: 0.95rem;
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.38);
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin: -0.75rem auto 1.75rem;
+    max-width: 360px;
+}
 .lab-btn--discover {
     border-radius: 16px !important;
 }
@@ -4802,3 +4879,74 @@ body.admin-bar .lab-global-header {
         padding: 0 1rem;
     }
 }
+
+/* ── Phase 1 Refinements: Quantity Selector and Responsive Calendar ── */
+.lab-qty-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lab-qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #1c1c22;
+    color: #e4e4e7;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+.lab-qty-btn:hover {
+    background: var(--lab-primary);
+    border-color: var(--lab-primary);
+    color: #fff;
+}
+
+/* Availability dashboard table breakpoint for tablets */
+@media (max-width: 1024px) {
+    .lab-avail-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    .lab-avail-row__times {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .lab-avail-row__times .lab-field {
+        flex: 1;
+        min-width: 120px;
+    }
+    .lab-avail-row__status {
+        text-align: left;
+    }
+}
+
+/* Responsive calendar adjustments on mobile */
+@media (max-width: 480px) {
+    .lab-calendar-dates,
+    .lab-calendar-times {
+        min-width: 0 !important;
+        width: 100% !important;
+        padding: 1rem 0.5rem !important;
+        box-sizing: border-box;
+    }
+    .lab-cal-dow, 
+    .lab-cal-grid {
+        gap: 0.2rem !important;
+    }
+    .lab-date-btn {
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+    }
+    .lab-cal-head h4 {
+        font-size: 0.95rem !important;
+    }
+}
+

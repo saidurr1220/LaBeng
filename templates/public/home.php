@@ -140,7 +140,7 @@ if ( count( $carousel_items ) < 5 ) {
                     }
                 ?>
                     <div class="lab-carousel__slide">
-                        <div class="lab-carousel__card-container">
+                        <a href="<?php echo esc_url( $url ); ?>" class="lab-carousel__card-container lab-carousel__card-link">
                             <div class="lab-carousel__card-image-wrap">
                                 <span class="lab-carousel__card-badge">Featured</span>
                                 <img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" />
@@ -157,13 +157,13 @@ if ( count( $carousel_items ) < 5 ) {
                                     </div>
                                 </div>
                                 <div class="lab-carousel__card-action">
-                                    <a href="<?php echo esc_url( $url ); ?>" class="lab-btn lab-btn--view">
+                                    <span class="lab-btn lab-btn--view">
                                         <span>View</span>
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                                    </a>
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </div>

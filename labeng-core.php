@@ -3,7 +3,7 @@
  * Plugin Name: Labeng Core
  * Plugin URI:  https://labeng.com
  * Description: 3-sided SaaS marketplace — Customers discover & book, Business Owners self-manage listings, Admin manages the platform.
- * Version:     1.3.8
+ * Version:     1.4.0
  * Author:      Md. Saidur Rahman
  * Author URI:  https://saidur-it.vercel.app
  * Text Domain: labeng
@@ -14,7 +14,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* ── Constants ─────────────────────────────────────────────── */
-define( 'LABENG_VERSION', '1.3.8' );
+define( 'LABENG_VERSION', '1.4.0' );
 define( 'LABENG_PATH',    plugin_dir_path( __FILE__ ) );
 define( 'LABENG_URL',     plugin_dir_url( __FILE__ ) );
 define( 'LABENG_BASENAME', plugin_basename( __FILE__ ) );
@@ -420,6 +420,18 @@ function labeng_template_include( $template ) {
         if ( $custom ) return $custom;
     }
 
+    /* 4d. Forgot Password Page */
+    if ( is_page( 'forgot-password' ) ) {
+        $custom = lab_locate_template( 'public/forgot-password.php' );
+        if ( $custom ) return $custom;
+    }
+
+    /* 4e. Reset Password Page */
+    if ( is_page( 'reset-password' ) ) {
+        $custom = lab_locate_template( 'public/reset-password.php' );
+        if ( $custom ) return $custom;
+    }
+
     /* 5. Business Dashboard */
     if ( is_page( 'business-dashboard' ) ) {
         $custom = lab_locate_template( 'business/dashboard-page.php' );
@@ -634,20 +646,16 @@ function labeng_admin_branding_page() {
     require_once LABENG_PATH . 'admin/branding-settings.php';
 }
 
-/* Always use the configured From address/name when SMTP is on */
+/* Always use the configured From address/name unconditionally */
 add_filter( 'wp_mail_from', function( $email ) {
-    if ( get_option( 'lab_smtp_enabled', '0' ) === '1' ) {
-        $from = get_option( 'lab_smtp_from', '' );
-        if ( $from ) return $from;
-    }
-    return $email;
+    $from = get_option( 'lab_smtp_from', '' );
+    if ( $from ) return $from;
+    return 'info@labeng.co.uk';
 } );
 add_filter( 'wp_mail_from_name', function( $name ) {
-    if ( get_option( 'lab_smtp_enabled', '0' ) === '1' ) {
-        $fromname = get_option( 'lab_smtp_fromname', '' );
-        if ( $fromname ) return $fromname;
-    }
-    return $name;
+    $fromname = get_option( 'lab_smtp_fromname', '' );
+    if ( $fromname ) return $fromname;
+    return 'LaBeng';
 } );
 
 /* SMTP: configure PHPMailer when lab_smtp_enabled is on */
@@ -678,6 +686,45 @@ function labeng_configure_smtp( $phpmailer ) {
     $phpmailer->From       = $from;
     $phpmailer->FromName   = $fromname;
     $phpmailer->CharSet    = 'UTF-8';
+}
+
+/* Custom Retrieve Password: branded HTML email via our email template */
+add_filter( 'retrieve_password_message', 'labeng_custom_retrieve_password_message', 99, 4 );
+function labeng_custom_retrieve_password_message( $message, $key, $user_login, $user_data ) {
+    $reset_url = add_query_arg(
+        array(
+            'key'   => $key,
+            'login' => rawurlencode( $user_login ),
+        ),
+        home_url( '/reset-password/' )
+    );
+
+    $name = $user_data->first_name ? $user_data->first_name : $user_login;
+
+    $body = '<p>Hi ' . esc_html( $name ) . ',</p>'
+          . '<p>We received a request to reset the password for your LaBeng account.</p>'
+          . '<p>If you did not make this request, you can safely ignore this email — nothing will change.</p>'
+          . '<p style="margin:24px 0;text-align:center;">'
+          . '<a href="' . esc_url( $reset_url ) . '" style="display:inline-block;padding:14px 32px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;">Reset My Password</a>'
+          . '</p>'
+          . '<p style="color:#8a8a93;font-size:13px;">If the button above doesn\'t work, copy and paste this link into your browser:</p>'
+          . '<p style="color:#5FE0EC;font-size:13px;word-break:break-all;">' . esc_url( $reset_url ) . '</p>';
+
+    return Lab_Email::wrap( 'Password Reset Request', $body );
+}
+
+/* Set HTML headers and consistent From address on the password reset email */
+add_filter( 'retrieve_password_notification_email', 'labeng_password_reset_email_headers', 99, 4 );
+function labeng_password_reset_email_headers( $defaults, $key, $user_login, $user_data ) {
+    $from_email = get_option( 'lab_smtp_from', 'info@labeng.co.uk' );
+    $from_name  = get_option( 'lab_smtp_fromname', 'LaBeng' );
+
+    $defaults['headers'] = array(
+        'Content-Type: text/html; charset=UTF-8',
+        'From: ' . $from_name . ' <' . $from_email . '>',
+    );
+
+    return $defaults;
 }
 
 /* Output favicon from the uploaded branding (falls back to the logo). */
@@ -751,6 +798,7 @@ function labeng_admin_dashboard_page() {
             <a href="?page=labeng-dashboard&tab=registrations" class="nav-tab <?php echo $current_tab === 'registrations' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Pending Registrations', 'labeng' ); ?> (<?php echo esc_html($pending_businesses); ?>)</a>
             <a href="?page=labeng-dashboard&tab=members" class="nav-tab <?php echo $current_tab === 'members' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Registered Members', 'labeng' ); ?></a>
             <a href="?page=labeng-dashboard&tab=listings" class="nav-tab <?php echo $current_tab === 'listings' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'All Listings', 'labeng' ); ?></a>
+            <a href="?page=labeng-dashboard&tab=enquiries" class="nav-tab <?php echo $current_tab === 'enquiries' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Contact Enquiries', 'labeng' ); ?></a>
         </h2>
 
         <?php if ( $current_tab === 'overview' ) : ?>
@@ -1006,6 +1054,77 @@ function labeng_admin_dashboard_page() {
                 </table>
             <?php else : ?>
                 <p><?php esc_html_e( 'No business listings found.', 'labeng' ); ?></p>
+            <?php endif; ?>
+        <?php elseif ( $current_tab === 'enquiries' ) : ?>
+            <h2><?php esc_html_e( 'Contact & Partner Enquiries', 'labeng' ); ?></h2>
+            <?php
+            $partner_inqs = get_option( 'lab_partner_inquiries', array() );
+            $customer_inqs = get_option( 'lab_customer_inquiries', array() );
+            
+            $all_inqs = array();
+            if ( is_array( $partner_inqs ) ) {
+                foreach ( $partner_inqs as $inq ) {
+                    $inq['type'] = 'Partner / Business';
+                    $all_inqs[] = $inq;
+                }
+            }
+            if ( is_array( $customer_inqs ) ) {
+                foreach ( $customer_inqs as $inq ) {
+                    $inq['type'] = 'Customer';
+                    $inq['business_name'] = '—';
+                    $inq['category'] = '—';
+                    $all_inqs[] = $inq;
+                }
+            }
+            
+            usort( $all_inqs, function( $a, $b ) {
+                return strcmp( $b['time'] ?? '', $a['time'] ?? '' );
+            } );
+            
+            if ( ! empty( $all_inqs ) ) : ?>
+                <table class="wp-list-table widefat fixed striped table-view-list">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e( 'Date / Time', 'labeng' ); ?></th>
+                            <th><?php esc_html_e( 'Inquiry Type', 'labeng' ); ?></th>
+                            <th><?php esc_html_e( 'Sender Details', 'labeng' ); ?></th>
+                            <th><?php esc_html_e( 'Business / Category', 'labeng' ); ?></th>
+                            <th><?php esc_html_e( 'Subject / Message', 'labeng' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $all_inqs as $inq ) : ?>
+                            <tr>
+                                <td><?php echo esc_html( date( 'M j, Y g:i A', strtotime( $inq['time'] ?? '' ) ) ); ?></td>
+                                <td>
+                                    <span style="font-weight:600; color:<?php echo ($inq['type'] === 'Customer' ? '#1FCFE0' : '#198754'); ?>;">
+                                        <?php echo esc_html( $inq['type'] ); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div><strong>Name:</strong> <?php echo esc_html( $inq['name'] ?? '' ); ?></div>
+                                    <div><strong>Email:</strong> <a href="mailto:<?php echo esc_attr( $inq['email'] ?? '' ); ?>"><?php echo esc_html( $inq['email'] ?? '' ); ?></a></div>
+                                </td>
+                                <td>
+                                    <?php if ( $inq['type'] === 'Customer' ) : ?>
+                                        <span class="description">—</span>
+                                    <?php else : ?>
+                                        <div><strong>Name:</strong> <?php echo esc_html( $inq['business_name'] ?? '—' ); ?></div>
+                                        <div><strong>Category:</strong> <?php echo esc_html( $inq['category'] ?? '—' ); ?></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ( ! empty( $inq['subject'] ) ) : ?>
+                                        <div><strong>Subject:</strong> <?php echo esc_html( $inq['subject'] ); ?></div>
+                                    <?php endif; ?>
+                                    <div style="white-space: pre-wrap; margin-top: 4px; color:#666;"><?php echo esc_html( $inq['message'] ?? '' ); ?></div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else : ?>
+                <p><?php esc_html_e( 'No contact enquiries stored yet.', 'labeng' ); ?></p>
             <?php endif; ?>
         <?php endif; ?>
     </div>

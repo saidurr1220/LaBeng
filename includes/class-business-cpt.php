@@ -414,7 +414,7 @@ class Lab_Business_CPT {
             <input type="hidden" name="lab_cat_image_id" class="lab-cat-image-id" value="" />
             <button type="button" class="button lab-cat-upload-btn"><?php esc_html_e( 'Select Image', 'labeng' ); ?></button>
             <button type="button" class="button lab-cat-remove-btn" style="display:none;"><?php esc_html_e( 'Remove', 'labeng' ); ?></button>
-            <p class="description"><?php esc_html_e( 'Shown in the "Explore Categories" section on the home page.', 'labeng' ); ?></p>
+            <p class="description"><?php esc_html_e( 'Shown in the "Popular Categories" section on the Discover page.', 'labeng' ); ?></p>
         </div>
         <?php
         self::category_image_script();
@@ -432,7 +432,7 @@ class Lab_Business_CPT {
                 <input type="hidden" name="lab_cat_image_id" class="lab-cat-image-id" value="<?php echo esc_attr( $image_id ); ?>" />
                 <button type="button" class="button lab-cat-upload-btn"><?php esc_html_e( 'Select Image', 'labeng' ); ?></button>
                 <button type="button" class="button lab-cat-remove-btn" <?php echo $image_id ? '' : 'style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'labeng' ); ?></button>
-                <p class="description"><?php esc_html_e( 'Shown in the "Explore Categories" section on the home page.', 'labeng' ); ?></p>
+                <p class="description"><?php esc_html_e( 'Shown in the "Popular Categories" section on the Discover page.', 'labeng' ); ?></p>
             </td>
         </tr>
         <?php
@@ -754,11 +754,44 @@ class Lab_Business_CPT {
                     if ( $owner_id ) {
                         $user = get_userdata( $owner_id );
                         echo $user ? esc_html( $user->display_name . ' (' . $user->user_email . ')' ) : esc_html__( 'Unknown', 'labeng' );
+                        echo '<p class="description">' . esc_html__( 'To change the owner, use the fields below — they will replace the assigned account.', 'labeng' ) . '</p>';
                     } else {
-                        esc_html_e( 'Not assigned', 'labeng' );
+                        echo '<strong style="color:#dc3545;">' . esc_html__( 'Not assigned — this business has no login account yet.', 'labeng' ) . '</strong>';
                     }
                     ?>
                 </td>
+            </tr>
+        </table>
+
+        <hr style="margin:16px 0;" />
+        <h4 style="margin:0 0 8px;"><?php esc_html_e( 'Assign / Create Owner Login', 'labeng' ); ?></h4>
+        <p class="description" style="margin-top:0;">
+            <?php esc_html_e( 'Link an existing account, or leave the dropdown on "— Create new account —" and fill in the name/email to generate a new business-owner login automatically. The owner will be emailed their temporary password.', 'labeng' ); ?>
+        </p>
+        <table class="form-table">
+            <tr>
+                <th><label for="lab_owner_existing"><?php esc_html_e( 'Existing User', 'labeng' ); ?></label></th>
+                <td>
+                    <?php
+                    $users = get_users( array( 'role__in' => array( 'business_owner', 'subscriber' ), 'orderby' => 'display_name', 'number' => 300 ) );
+                    ?>
+                    <select id="lab_owner_existing" name="lab_owner_existing" style="min-width:280px;">
+                        <option value=""><?php esc_html_e( '— Create new account —', 'labeng' ); ?></option>
+                        <?php foreach ( $users as $u ) : ?>
+                            <option value="<?php echo esc_attr( $u->ID ); ?>" <?php selected( $owner_id, $u->ID ); ?>>
+                                <?php echo esc_html( $u->display_name . ' (' . $u->user_email . ')' ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="lab_new_owner_name"><?php esc_html_e( 'New Owner Name', 'labeng' ); ?></label></th>
+                <td><input type="text" id="lab_new_owner_name" name="lab_new_owner_name" class="regular-text" placeholder="<?php esc_attr_e( 'Only used when creating a new account', 'labeng' ); ?>" /></td>
+            </tr>
+            <tr>
+                <th><label for="lab_new_owner_email"><?php esc_html_e( 'New Owner Email', 'labeng' ); ?></label></th>
+                <td><input type="email" id="lab_new_owner_email" name="lab_new_owner_email" class="regular-text" placeholder="<?php esc_attr_e( 'Only used when creating a new account', 'labeng' ); ?>" /></td>
             </tr>
         </table>
         <?php
@@ -782,7 +815,29 @@ class Lab_Business_CPT {
             update_post_meta( $post_id, '_lab_postcode', sanitize_text_field( $_POST['_lab_postcode'] ) );
         }
         if ( isset( $_POST['_lab_status'] ) ) {
-            update_post_meta( $post_id, '_lab_status', sanitize_text_field( $_POST['_lab_status'] ) );
+            $new_status = sanitize_text_field( $_POST['_lab_status'] );
+            update_post_meta( $post_id, '_lab_status', $new_status );
+
+            /* Keep the native WP post_status in sync with the custom approval
+               status. Without this, an admin can mark a listing "Approved"
+               here while the post itself stays a Draft — invisible on the
+               homepage carousel, Discover page and search, which all filter
+               on post_status=publish. Mirrors the Approve/Suspend quick
+               actions in handle_row_action(), which already do both. */
+            $desired_post_status = ( $new_status === 'approved' ) ? 'publish' : 'draft';
+            $current_post = get_post( $post_id );
+            if ( $current_post
+                 && $current_post->post_status !== $desired_post_status
+                 && ! in_array( $current_post->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+                remove_action( 'save_post_lab_business', array( __CLASS__, 'save_meta_boxes' ) );
+                wp_update_post( array( 'ID' => $post_id, 'post_status' => $desired_post_status ) );
+                add_action( 'save_post_lab_business', array( __CLASS__, 'save_meta_boxes' ) );
+            }
+        }
+
+        /* Owner assignment / creation (Business Details box) */
+        if ( isset( $_POST['lab_business_details_nonce'] ) && wp_verify_nonce( $_POST['lab_business_details_nonce'], 'lab_business_details_save' ) ) {
+            self::save_owner_assignment( $post_id );
         }
 
         /* Commission */
@@ -809,5 +864,75 @@ class Lab_Business_CPT {
                 );
             }
         }
+    }
+
+    /**
+     * Assign or create the WP user account that logs in as this business's
+     * owner (Business Details meta box — "Assign / Create Owner Login").
+     *
+     * This is what makes "Add New Business" from wp-admin a complete
+     * workflow: without it, an admin-created business has no way to log in
+     * and manage the listing from the Business Dashboard.
+     */
+    private static function save_owner_assignment( $post_id ) {
+        $existing_selected = absint( $_POST['lab_owner_existing'] ?? 0 );
+        $new_name  = sanitize_text_field( $_POST['lab_new_owner_name'] ?? '' );
+        $new_email = sanitize_email( $_POST['lab_new_owner_email'] ?? '' );
+
+        /* Case 1: an existing user was picked from the dropdown — link it. */
+        if ( $existing_selected ) {
+            $current_owner_id = absint( get_post_meta( $post_id, '_lab_owner_id', true ) );
+            if ( $existing_selected !== $current_owner_id ) {
+                update_post_meta( $post_id, '_lab_owner_id', $existing_selected );
+            }
+            return;
+        }
+
+        /* No dropdown pick and no new-account email typed — nothing to do. */
+        if ( empty( $new_email ) || ! is_email( $new_email ) ) {
+            return;
+        }
+
+        /* The typed email already belongs to a WP user — link, don't duplicate. */
+        $found = get_user_by( 'email', $new_email );
+        if ( $found ) {
+            update_post_meta( $post_id, '_lab_owner_id', $found->ID );
+            return;
+        }
+
+        /* Create a brand-new business-owner account. */
+        $base_username = sanitize_user( strtolower( str_replace( ' ', '.', $new_name ?: $new_email ) ) );
+        if ( '' === $base_username ) $base_username = 'owner';
+        $username = $base_username;
+        $i = 1;
+        while ( username_exists( $username ) ) {
+            $username = $base_username . $i;
+            $i++;
+        }
+
+        $temp_password = wp_generate_password( 12, false );
+        $user_id = wp_create_user( $username, $temp_password, $new_email );
+        if ( is_wp_error( $user_id ) ) {
+            return;
+        }
+
+        $name_parts = $new_name ? explode( ' ', $new_name, 2 ) : array( '', '' );
+
+        /* Match the role a self-registered owner ends up with: 'subscriber'
+           until the listing is approved, 'business_owner' once it's live —
+           mirrors handle_row_action()'s approve upgrade. */
+        $status = sanitize_text_field( $_POST['_lab_status'] ?? get_post_meta( $post_id, '_lab_status', true ) );
+        $role   = ( $status === 'approved' ) ? 'business_owner' : 'subscriber';
+
+        wp_update_user( array(
+            'ID'         => $user_id,
+            'first_name' => $name_parts[0],
+            'last_name'  => isset( $name_parts[1] ) ? $name_parts[1] : '',
+            'role'       => $role,
+        ) );
+
+        update_post_meta( $post_id, '_lab_owner_id', $user_id );
+
+        Lab_Email::lab_email_admin_created_account( $user_id, $temp_password, get_the_title( $post_id ) );
     }
 }

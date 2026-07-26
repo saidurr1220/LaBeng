@@ -8,7 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Lab_Email {
 
     public static function init() {
-        add_filter( 'wp_mail_content_type', array( __CLASS__, 'set_html_content_type' ) );
+        /* Content-type filter is now applied only inside send(), not globally.
+           This prevents WordPress core plain-text emails (password reset, etc.)
+           from being corrupted by a permanent text/html content type. */
     }
 
     /**
@@ -23,7 +25,24 @@ class Lab_Email {
      */
     private static function send( $to, $subject, $message ) {
         global $wpdb;
-        $status = wp_mail( $to, $subject, $message ) ? 'sent' : 'failed';
+
+        /* Set Content-Type to HTML only for this wp_mail() call, then remove
+           the filter immediately so WordPress core emails stay plain-text. */
+        add_filter( 'wp_mail_content_type', array( __CLASS__, 'set_html_content_type' ) );
+
+        /* Explicit headers ensure consistent sender identity regardless of
+           whether the SMTP phpmailer_init filter has fired yet. */
+        $from_email = get_option( 'lab_smtp_from', 'info@labeng.co.uk' );
+        $from_name  = get_option( 'lab_smtp_fromname', 'LaBeng' );
+        $headers    = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . $from_name . ' <' . $from_email . '>',
+        );
+
+        $status = wp_mail( $to, $subject, $message, $headers ) ? 'sent' : 'failed';
+
+        remove_filter( 'wp_mail_content_type', array( __CLASS__, 'set_html_content_type' ) );
+
         $wpdb->insert(
             $wpdb->prefix . 'lab_email_logs',
             array(
@@ -41,7 +60,7 @@ class Lab_Email {
     /**
      * Base email template wrapper.
      */
-    private static function wrap( $title, $body ) {
+    public static function wrap( $title, $body ) {
         $site_name = get_bloginfo( 'name' );
         $year      = date( 'Y' );
         return '<!DOCTYPE html>
@@ -50,7 +69,7 @@ class Lab_Email {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@800&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:#0a0a0b;font-family:\'Segoe UI\',Roboto,Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0b;padding:40px 16px;">
@@ -58,8 +77,8 @@ class Lab_Email {
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#141417;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;">
     <tr><td style="height:4px;background:linear-gradient(90deg,#1FCFE0 0%,#5FE0EC 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
     <tr><td align="center" style="padding:34px 32px 6px;">
-        <div style="font-family:\'Great Vibes\',\'Brush Script MT\',cursive;font-size:48px;line-height:1;color:#ffffff;">LaBeng</div>
-        <div style="color:#6b6b7a;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:8px;">On-Demand Booking Network</div>
+        <div style="font-family:\'Sora\',\'Segoe UI\',Roboto,sans-serif;font-size:32px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;line-height:1;"><span style="color:#18697F;">LA</span><span style="color:#ffffff;">BENG</span></div>
+        <div style="color:#6b6b7a;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:8px;">The world at your fingertips</div>
     </td></tr>
     <tr><td style="padding:20px 36px 0;">
         <h2 style="color:#ffffff;margin:0;font-size:21px;font-weight:600;text-align:center;">' . esc_html( $title ) . '</h2>
@@ -257,5 +276,52 @@ class Lab_Email {
               . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/business-dashboard/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#198754;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Go to Dashboard</a></p>';
 
         self::send( $owner->user_email, 'Your Labeng Listing is Live!', self::wrap( 'Your Listing is Live!', $body ) );
+    }
+
+    /**
+     * 6. Welcome email to new user.
+     */
+    public static function lab_email_welcome( $user_id ) {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return false;
+
+        $name = $user->first_name ? $user->first_name : $user->display_name;
+        $is_owner = in_array( 'business_owner', $user->roles ) || in_array( 'subscriber', $user->roles );
+
+        if ( $is_owner ) {
+            $body = '<p>Hi ' . esc_html( $name ) . ',</p>'
+                  . '<p>Thank you for registering your interest as a business partner on LaBeng!</p>'
+                  . '<p>Your application is currently under review by our admin team. We will notify you by email as soon as your listing is approved and goes live.</p>'
+                  . '<p>In the meantime, you can explore the dashboard and prepare your profile details.</p>'
+                  . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/business-dashboard/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Go to Dashboard</a></p>';
+        } else {
+            $body = '<p>Hi ' . esc_html( $name ) . ',</p>'
+                  . '<p>Welcome to LaBeng! We are excited to have you on board.</p>'
+                  . '<p>You can now browse local businesses, book services, and manage your bookings directly from your customer dashboard.</p>'
+                  . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/customer-dashboard/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Go to Dashboard</a></p>';
+        }
+
+        return self::send( $user->user_email, 'Welcome to LaBeng!', self::wrap( 'Welcome to LaBeng!', $body ) );
+    }
+
+    /**
+     * 7. Account credentials when an admin manually creates a business +
+     *    owner login from wp-admin (Businesses → Business Details box).
+     */
+    public static function lab_email_admin_created_account( $user_id, $temp_password, $business_name ) {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return false;
+
+        $name = $user->first_name ? $user->first_name : $user->display_name;
+
+        $body = '<p>Hi ' . esc_html( $name ) . ',</p>'
+              . '<p>An administrator has created your business owner account on LaBeng for <strong style="color:#ffffff;">' . esc_html( $business_name ) . '</strong>.</p>'
+              . '<p>Use the details below to log in and manage your listing:</p>'
+              . self::row( 'Login Email', $user->user_email )
+              . self::row( 'Temporary Password', $temp_password )
+              . '<p style="margin:16px 0 0;color:#f59e0b;font-size:13px;">For your security, please log in and change this password as soon as possible.</p>'
+              . '<p style="margin:20px 0 0;"><a href="' . esc_url( home_url( '/login/' ) ) . '" style="display:inline-block;padding:12px 24px;background:#1FCFE0;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Log In Now</a></p>';
+
+        return self::send( $user->user_email, 'Your LaBeng Business Account', self::wrap( 'Your Business Account is Ready', $body ) );
     }
 }

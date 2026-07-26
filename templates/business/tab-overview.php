@@ -20,6 +20,14 @@ $week_count = $wpdb->get_var( $wpdb->prepare(
     $business_id, $week_start, $week_end
 ) );
 
+/* This month's bookings */
+$month_start = date( 'Y-m-01', strtotime( $today ) );
+$month_end   = date( 'Y-m-t', strtotime( $today ) );
+$month_count = $wpdb->get_var( $wpdb->prepare(
+    "SELECT COUNT(*) FROM {$table} WHERE business_id = %d AND booking_date BETWEEN %s AND %s",
+    $business_id, $month_start, $month_end
+) );
+
 /* Revenue, commission and net earnings (paid + completed bookings) */
 $earnings         = Lab_Bookings::get_earnings( $business_id );
 $total_revenue    = $earnings['revenue'];
@@ -50,6 +58,10 @@ $recent = $wpdb->get_results( $wpdb->prepare(
     <div class="lab-stat-card">
         <span class="lab-stat-card__label"><?php esc_html_e( "This Week's Bookings", 'labeng' ); ?></span>
         <span class="lab-stat-card__value"><?php echo esc_html( $week_count ); ?></span>
+    </div>
+    <div class="lab-stat-card">
+        <span class="lab-stat-card__label"><?php esc_html_e( "This Month's Bookings", 'labeng' ); ?></span>
+        <span class="lab-stat-card__value"><?php echo esc_html( $month_count ); ?></span>
     </div>
     <div class="lab-stat-card">
         <span class="lab-stat-card__label"><?php esc_html_e( 'Total Revenue', 'labeng' ); ?></span>

@@ -33,6 +33,7 @@ labeng_get_header();
             <div class="lab-partner-cta-box">
                 <strong>Have Questions?</strong>
                 <p>We're here to help - send us a message and we'll get back to you</p>
+                <p class="lab-partner-cta-box__slogan"><em>The world at your fingertips</em></p>
             </div>
         </div>
 
@@ -70,6 +71,13 @@ labeng_get_header();
                                 <?php endif; ?>
                             </select>
                         </div>
+                    </div>
+                    <div class="lab-form-row lab-form-row--2col">
+                        <div class="lab-field">
+                            <label>Phone Number <span class="lab-field-optional">(optional)</span></label>
+                            <input type="tel" name="phone" placeholder="e.g. +44 7700 900000" />
+                        </div>
+                        <div class="lab-field">&nbsp;</div>
                     </div>
                     <div class="lab-field">
                         <label>Message</label>
