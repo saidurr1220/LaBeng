@@ -2149,6 +2149,11 @@ body.admin-bar .lab-global-header {
     border-color: rgba(239,68,68,0.28);
     color: #f87171;
 }
+.lab-notice--info {
+    background: rgba(24,105,127,0.1);
+    border-color: rgba(24,105,127,0.28);
+    color: #cfeff4;
+}
 .lab-notice a { color: inherit; text-decoration: underline; }
 
 /* Empty States */
@@ -2656,6 +2661,17 @@ body.admin-bar .lab-global-header {
     .lab-calendar-layout {
         flex-direction: column;
     }
+    /* Once the calendar/time panels stack into one column, neither should
+       keep the 280px side-by-side min-width — that floor is what pushed
+       .lab-calendar-times past the edge of its card on tablet/narrow
+       widths (min-width only makes sense when there are two columns to
+       divide the row between). Full width for both, no more, no less. */
+    .lab-calendar-dates,
+    .lab-calendar-times {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 576px) {
@@ -2670,9 +2686,6 @@ body.admin-bar .lab-global-header {
     }
     .lab-bf-step-title {
         font-size: 1.5rem;
-    }
-    .lab-calendar-times {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -4473,6 +4486,36 @@ a.lab-carousel__card-link:hover {
     margin-bottom: 1.5rem;
     position: relative;
 }
+.lab-booking-step-card__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #8a8a93;
+    font-size: 0.82rem;
+}
+.lab-step-number {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(24, 105, 127, 0.18);
+    border: 1px solid var(--lab-primary);
+    color: #5FE0EC;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.lab-field-hint {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: #8a8a93;
+}
 .lab-booking-step-card__header {
     display: flex;
     align-items: flex-end;
@@ -4928,25 +4971,27 @@ a.lab-carousel__card-link:hover {
     }
 }
 
-/* Responsive calendar adjustments on mobile */
+/* Responsive calendar adjustments on very narrow phones.
+   min-width/width no longer need !important here — the underlying floor
+   that caused the overflow is reset properly at the 992px breakpoint
+   (see above) as soon as the layout stacks to one column; this block only
+   needs to handle the extra padding/spacing polish for small screens. */
 @media (max-width: 480px) {
     .lab-calendar-dates,
     .lab-calendar-times {
-        min-width: 0 !important;
-        width: 100% !important;
-        padding: 1rem 0.5rem !important;
+        padding: 1rem 0.5rem;
         box-sizing: border-box;
     }
-    .lab-cal-dow, 
+    .lab-cal-dow,
     .lab-cal-grid {
-        gap: 0.2rem !important;
+        gap: 0.2rem;
     }
     .lab-date-btn {
-        font-size: 0.8rem !important;
-        border-radius: 6px !important;
+        font-size: 0.8rem;
+        border-radius: 6px;
     }
     .lab-cal-head h4 {
-        font-size: 0.95rem !important;
+        font-size: 0.95rem;
     }
 }
 

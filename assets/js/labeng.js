@@ -966,6 +966,47 @@
 
     /* ── Booking Flow (Inline, multi-step) ─────────────────────── */
     /* ── Booking Steps Tab Editor (Dashboard) ────────────────────── */
+
+    /* Plain-language helper copy per step type — mirrors
+       lab_booking_step_type_hint()/lab_booking_step_options_hint()/
+       lab_booking_step_price_label() in tab-booking-steps.php so the text
+       stays identical whether it was rendered server-side on page load or
+       updated client-side after the owner changes the Step Type dropdown. */
+    var LAB_STEP_TYPE_HINTS = {
+        details:  "The customer will see a simple form to enter their name, phone number and any notes for you.",
+        vehicles: "The customer will see a grid of photo cards to pick from — use this for choosing between physical items, e.g. a specific car.",
+        services: "The customer will see a grid of cards to pick one service from, each showing its name and price.",
+        duration: "The customer will see a row of buttons to pick how long they need (e.g. 24 hours, 48 hours). Each option multiplies the price instead of adding to it.",
+        datetime: "The customer will see your calendar and available time slots to pick a date and time.",
+        payment:  "The customer will see a summary of their booking and pay (if the service isn't free). This is normally your last step."
+    };
+    var LAB_STEP_OPTIONS_HINTS = {
+        vehicles: 'Each row below is one choice the customer can tap (e.g. one specific vehicle). The price is added to their total when they pick it.',
+        services: 'Each row below is one choice the customer can tap (e.g. one specific service). The price is added to their total when they pick it.',
+        duration: 'Each row below is one choice the customer can tap (e.g. "24 hours"). The number multiplies the price instead of adding to it — use 1 for no change, 2 to double it, and so on.'
+    };
+    function labStepPriceLabel(type) {
+        return type === 'duration' ? 'Multiplier' : 'Price';
+    }
+
+    /* Renumber the "Step N" badges to match current DOM order — steps run
+       top-to-bottom, so this must re-run any time a step is added or
+       removed to keep the badges truthful. */
+    function labRenumberBookingSteps() {
+        $('#lab-booking-steps-list .lab-booking-step-card').each(function(i) {
+            $(this).find('.lab-step-number').text(i + 1);
+        });
+    }
+
+    /* Refresh the type-hint, options-hint and price-field labels inside one
+       step card to match its currently selected Step Type. */
+    function labApplyStepTypeHint($card) {
+        var type = $card.find('.lab-step-type-select').val();
+        $card.find('.lab-step-type-hint').text(LAB_STEP_TYPE_HINTS[type] || '');
+        $card.find('.lab-step-options-hint').text(LAB_STEP_OPTIONS_HINTS[type] || '');
+        $card.find('.opt-price-label').text(labStepPriceLabel(type));
+    }
+
     // Add Step
     $(document).on('click', '#lab-add-booking-step', function() {
         var template = document.getElementById('lab-booking-step-template');
@@ -973,30 +1014,46 @@
             var clone = template.content.cloneNode(true);
             var $card = $(clone).appendTo('#lab-booking-steps-list');
             $card.find('.lab-step-type-select').trigger('change');
+            labRenumberBookingSteps();
+            $card.get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
 
     // Remove Step
     $(document).on('click', '.lab-step-remove', function() {
-        $(this).closest('.lab-booking-step-card').fadeOut(200, function() { $(this).remove(); });
+        $(this).closest('.lab-booking-step-card').fadeOut(200, function() {
+            $(this).remove();
+            labRenumberBookingSteps();
+        });
     });
 
-    // Toggle step options based on step type
+    // Toggle step options based on step type, and refresh the plain-language
+    // hints so they always describe what's currently selected.
     $(document).on('change', '.lab-step-type-select', function() {
         var type = $(this).val();
         var showOpts = ['vehicles', 'services', 'duration'].indexOf(type) !== -1;
         var $card = $(this).closest('.lab-booking-step-card');
         $card.find('.lab-booking-step-card__options').toggle(showOpts);
+        labApplyStepTypeHint($card);
     });
 
     // Add Option Row
     $(document).on('click', '.lab-add-step-option', function() {
         var template = document.getElementById('lab-booking-step-option-template');
+        var $card = $(this).closest('.lab-booking-step-card');
         if (template) {
             var clone = template.content.cloneNode(true);
-            $(this).closest('.lab-booking-step-card').find('.lab-step-options-list').append(clone);
+            $card.find('.lab-step-options-list').append(clone);
+            /* New row should reflect this card's current step type, not
+               whatever the template's static default label says. */
+            $card.find('.lab-step-option-row').last().find('.opt-price-label')
+                .text(labStepPriceLabel($card.find('.lab-step-type-select').val()));
         }
     });
+
+    // Number the server-rendered steps on first load (hints/labels are
+    // already correct from PHP at this point — only the badges need JS).
+    labRenumberBookingSteps();
 
     // Remove Option Row
     $(document).on('click', '.lab-opt-remove', function() {
