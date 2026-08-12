@@ -2661,17 +2661,6 @@ body.admin-bar .lab-global-header {
     .lab-calendar-layout {
         flex-direction: column;
     }
-    /* Once the calendar/time panels stack into one column, neither should
-       keep the 280px side-by-side min-width — that floor is what pushed
-       .lab-calendar-times past the edge of its card on tablet/narrow
-       widths (min-width only makes sense when there are two columns to
-       divide the row between). Full width for both, no more, no less. */
-    .lab-calendar-dates,
-    .lab-calendar-times {
-        min-width: 0;
-        width: 100%;
-        max-width: 100%;
-    }
 }
 
 @media (max-width: 576px) {
@@ -3518,6 +3507,24 @@ body.admin-bar .lab-global-header {
 .lab-bf-login-gate p {
     color: #8a8a93;
     margin: 0 0 1.75rem;
+}
+
+/* Once .lab-calendar-layout stacks its two panels into one column (see the
+   flex-direction:column rule above at <=992px), neither panel should keep
+   the 280px side-by-side min-width — that floor is what pushed
+   .lab-calendar-times past the edge of its card on tablet/narrow widths
+   (min-width only makes sense when there are two columns to divide the row
+   between). This must be declared AFTER the base .lab-calendar-dates,
+   .lab-calendar-times rule above for the cascade to actually apply it —
+   an earlier <=992px block that set this got silently overridden by the
+   later unconditional base rule, which is what caused the original bug. */
+@media (max-width: 992px) {
+    .lab-calendar-dates,
+    .lab-calendar-times {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 600px) {
